@@ -20,8 +20,8 @@ document.addEventListener("DOMContentLoaded", function() {
                 height: 600px;
                 background: var(--chat--color-background);
                 border-radius: 12px;
-                box-shadow: 0 8px 32px rgba(133, 79, 255, 0.15);
-                border: 1px solid rgba(133, 79, 255, 0.2);
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+                border: 1px solid rgba(0, 0, 0, 0.1);
                 overflow: hidden;
                 font-family: inherit;
             }
@@ -38,25 +38,27 @@ document.addEventListener("DOMContentLoaded", function() {
                 display: flex;
                 align-items: center;
                 gap: 12px;
-                border-bottom: 1px solid rgba(133, 79, 255, 0.1);
+                border-bottom: 1px solid rgba(0, 0, 0, 0.1);
                 position: relative;
             }
             .chat-widget .close-button {
                 position: absolute;
                 right: 16px;
-                top: 50%;
-                transform: translateY(-50%);
+                top: 16px;
                 background: none;
                 border: none;
                 color: var(--chat--color-font);
                 cursor: pointer;
-                padding: 4px;
+                padding: 0;
+                width: 20px;
+                height: 20px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                transition: color 0.2s;
-                font-size: 20px;
-                opacity: 0.6;
+                transition: opacity 0.2s;
+                font-size: 24px;
+                opacity: 0.5;
+                line-height: 1;
             }
             .chat-widget .close-button:hover {
                 opacity: 1;
@@ -64,10 +66,12 @@ document.addEventListener("DOMContentLoaded", function() {
             .chat-widget .brand-header img {
                 width: 32px;
                 height: 32px;
+                border-radius: 6px;
+                object-fit: cover;
             }
             .chat-widget .brand-header span {
-                font-size: 18px;
-                font-weight: 500;
+                font-size: 16px;
+                font-weight: 600;
                 color: var(--chat--color-font);
             }
             .chat-widget .new-conversation {
@@ -93,20 +97,22 @@ document.addEventListener("DOMContentLoaded", function() {
                 justify-content: center;
                 gap: 8px;
                 width: 100%;
-                padding: 16px 24px;
+                padding: 14px 24px;
                 background: linear-gradient(135deg, var(--chat--color-primary) 0%, var(--chat--color-secondary) 100%);
                 color: white;
                 border: none;
                 border-radius: 8px;
                 cursor: pointer;
                 font-size: 16px;
-                transition: transform 0.3s;
+                transition: transform 0.3s, box-shadow 0.3s;
                 font-weight: 500;
                 font-family: inherit;
-                margin-bottom: 12px;
+                margin-bottom: 16px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             }
             .chat-widget .new-chat-btn:hover {
-                transform: scale(1.02);
+                transform: translateY(-2px);
+                box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
             }
             .chat-widget .message-icon {
                 width: 20px;
@@ -147,12 +153,12 @@ document.addEventListener("DOMContentLoaded", function() {
                 background: linear-gradient(135deg, var(--chat--color-primary) 0%, var(--chat--color-secondary) 100%);
                 color: white;
                 align-self: flex-end;
-                box-shadow: 0 4px 12px rgba(133, 79, 255, 0.2);
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
                 border: none;
             }
             .chat-widget .chat-message.bot {
                 background: var(--chat--color-background);
-                border: 1px solid rgba(133, 79, 255, 0.2);
+                border: 1px solid rgba(0, 0, 0, 0.1);
                 color: var(--chat--color-font);
                 align-self: flex-start;
                 box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
@@ -160,24 +166,31 @@ document.addEventListener("DOMContentLoaded", function() {
             .chat-widget .chat-input {
                 padding: 16px;
                 background: var(--chat--color-background);
-                border-top: 1px solid rgba(133, 79, 255, 0.1);
+                border-top: 1px solid rgba(0, 0, 0, 0.1);
                 display: flex;
                 gap: 8px;
             }
             .chat-widget .chat-input textarea {
                 flex: 1;
                 padding: 12px;
-                border: 1px solid rgba(133, 79, 255, 0.2);
+                border: 1px solid rgba(0, 0, 0, 0.1);
                 border-radius: 8px;
                 background: var(--chat--color-background);
                 color: var(--chat--color-font);
                 resize: none;
                 font-family: inherit;
                 font-size: 14px;
+                line-height: 1.5;
+                box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
             }
             .chat-widget .chat-input textarea::placeholder {
                 color: var(--chat--color-font);
                 opacity: 0.6;
+            }
+            .chat-widget .chat-input textarea:focus {
+                outline: none;
+                border-color: var(--chat--color-primary);
+                box-shadow: 0 0 0 2px rgba(133, 79, 255, 0.2);
             }
             .chat-widget .chat-input button {
                 background: linear-gradient(135deg, var(--chat--color-primary) 0%, var(--chat--color-secondary) 100%);
@@ -186,12 +199,14 @@ document.addEventListener("DOMContentLoaded", function() {
                 border-radius: 8px;
                 padding: 0 20px;
                 cursor: pointer;
-                transition: transform 0.2s;
+                transition: transform 0.2s, box-shadow 0.2s;
                 font-family: inherit;
                 font-weight: 500;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             }
             .chat-widget .chat-input button:hover {
-                transform: scale(1.05);
+                transform: translateY(-2px);
+                box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
             }
             .chat-widget .chat-toggle {
                 position: fixed;
@@ -204,9 +219,9 @@ document.addEventListener("DOMContentLoaded", function() {
                 color: white;
                 border: none;
                 cursor: pointer;
-                box-shadow: 0 4px 12px rgba(133, 79, 255, 0.3);
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
                 z-index: 999;
-                transition: transform 0.3s;
+                transition: transform 0.3s, box-shadow 0.3s;
                 display: flex;
                 align-items: center;
                 justify-content: center;
@@ -217,11 +232,24 @@ document.addEventListener("DOMContentLoaded", function() {
             }
             .chat-widget .chat-toggle:hover {
                 transform: scale(1.05);
+                box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
             }
             .chat-widget .chat-toggle svg {
                 width: 24px;
                 height: 24px;
                 fill: currentColor;
+            }
+            
+            /* Estilização para scrollbar */
+            .chat-widget .chat-messages::-webkit-scrollbar {
+                width: 6px;
+            }
+            .chat-widget .chat-messages::-webkit-scrollbar-track {
+                background: transparent;
+            }
+            .chat-widget .chat-messages::-webkit-scrollbar-thumb {
+                background-color: rgba(0, 0, 0, 0.2);
+                border-radius: 20px;
             }
         `;
         
@@ -285,7 +313,7 @@ document.addEventListener("DOMContentLoaded", function() {
             <div class="brand-header">
                 <img src="${config.branding.logo}" alt="${config.branding.name}">
                 <span>${config.branding.name}</span>
-                <button class="close-button">×</button>
+                <button class="close-button">&times;</button>
             </div>
             <div class="new-conversation">
                 <h2 class="welcome-text">${config.branding.welcomeText}</h2>
@@ -304,7 +332,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 <div class="brand-header">
                     <img src="${config.branding.logo}" alt="${config.branding.name}">
                     <span>${config.branding.name}</span>
-                    <button class="close-button">×</button>
+                    <button class="close-button">&times;</button>
                 </div>
                 <div class="chat-messages"></div>
                 <div class="chat-input">
@@ -354,7 +382,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 });
         
                 const responseData = await response.json();
-                chatContainer.querySelector('.brand-header').style.display = 'none';
+                chatContainer.querySelector('.brand-header').style.display = 'flex';
                 chatContainer.querySelector('.new-conversation').style.display = 'none';
                 chatInterface.classList.add('active');
         
