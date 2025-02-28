@@ -68,8 +68,8 @@
         }
 
         .chat-widget .brand-header img {
-            width: 32px;
-            height: 32px;
+            width: 64px;
+            height: 64px;
         }
 
         .chat-widget .brand-header span {
