@@ -17,7 +17,7 @@
             z-index: 1000;
             display: none;
             width: 380px;
-            height: 500px;
+            height: 600px;
             background: var(--chat--color-background);
             border-radius: 12px;
             box-shadow: 0 8px 32px rgba(133, 79, 255, 0.15);
