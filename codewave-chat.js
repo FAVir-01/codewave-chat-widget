@@ -296,8 +296,8 @@
             welcomeText: '',
             responseTimeText: '',
             poweredBy: {
-                text: 'Powered by ChatWidget',
-                link: '#'
+                text: 'Powered by CodeWave.ia',
+                link: 'https://www.instagram.com/codewave.ia'
             }
         },
         style: {
