@@ -43,28 +43,33 @@
             gap: 12px;
             border-bottom: 1px solid rgba(133, 79, 255, 0.1);
             position: relative;
+            min-height: 80px;
         }
 
         .chat-widget .close-button {
             position: absolute;
             right: 16px;
-            top: 50%;
-            transform: translateY(-50%);
+            top: 16px;
             background: none;
             border: none;
             color: var(--chat--color-font);
             cursor: pointer;
-            padding: 4px;
+            padding: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
             transition: color 0.2s;
-            font-size: 20px;
+            font-size: 24px;
             opacity: 0.6;
+            z-index: 10;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
         }
 
         .chat-widget .close-button:hover {
             opacity: 1;
+            background-color: rgba(133, 79, 255, 0.1);
         }
 
         .chat-widget .brand-header img {
@@ -76,17 +81,22 @@
             font-size: 18px;
             font-weight: 500;
             color: var(--chat--color-font);
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
         .chat-widget .new-conversation {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+            position: relative;
             padding: 20px;
             text-align: center;
             width: 100%;
-            max-width: 300px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
         }
 
         .chat-widget .welcome-text {
@@ -136,6 +146,7 @@
             display: none;
             flex-direction: column;
             height: 100%;
+            width: 100%;
         }
 
         .chat-widget .chat-interface.active {
@@ -318,10 +329,14 @@
         } : defaultConfig;
 
     // Prevent multiple initializations
-    if (window.ChatWidgetInitialized) return;
+    if (window.ChatWidgetInitialized) {
+        console.warn('Chat widget already initialized. Skipping duplicate initialization.');
+        return;
+    }
     window.ChatWidgetInitialized = true;
 
     let currentSessionId = '';
+    let chatOpened = false;
 
     // Create widget container
     const widgetContainer = document.createElement('div');
@@ -404,16 +419,15 @@
         try {
             currentSessionId = generateUUID();
             
-            // Mostrar a interface de chat imediatamente, sem esperar pela resposta do webhook
-            const welcomeHeader = chatContainer.querySelector('.brand-header');
-            const welcomeConversation = chatContainer.querySelector('.new-conversation');
+            const welcomeSection = chatContainer.querySelector('.new-conversation');
             
-            if (welcomeHeader) welcomeHeader.style.display = 'none';
-            if (welcomeConversation) welcomeConversation.style.display = 'none';
+            if (welcomeSection) {
+                welcomeSection.style.display = 'none';
+            }
             
+            chatInterface.style.display = 'flex';
             chatInterface.classList.add('active');
             
-            // Se um webhook estiver configurado, envie a solicitação
             if (config.webhook && config.webhook.url) {
                 const data = [{
                     action: "loadPreviousSession",
@@ -439,7 +453,6 @@
                 botMessageDiv.textContent = Array.isArray(responseData) ? responseData[0].output : responseData.output;
                 messagesContainer.appendChild(botMessageDiv);
             } else {
-                // Mensagem padrão se nenhum webhook for configurado
                 const botMessageDiv = document.createElement('div');
                 botMessageDiv.className = 'chat-message bot';
                 botMessageDiv.textContent = "Olá! Como posso ajudar você hoje?";
@@ -450,7 +463,7 @@
         } catch (error) {
             console.error('Error starting conversation:', error);
             
-            // Mostrar mensagem de erro na interface de chat
+            chatInterface.style.display = 'flex';
             chatInterface.classList.add('active');
             const errorMessageDiv = document.createElement('div');
             errorMessageDiv.className = 'chat-message bot';
@@ -498,7 +511,6 @@
                 botMessageDiv.textContent = Array.isArray(data) ? data[0].output : data.output;
                 messagesContainer.appendChild(botMessageDiv);
             } else {
-                // Resposta padrão se nenhum webhook for configurado
                 setTimeout(() => {
                     const botMessageDiv = document.createElement('div');
                     botMessageDiv.className = 'chat-message bot';
@@ -510,7 +522,6 @@
         } catch (error) {
             console.error('Error sending message:', error);
             
-            // Mostrar mensagem de erro na interface de chat
             const errorMessageDiv = document.createElement('div');
             errorMessageDiv.className = 'chat-message bot';
             errorMessageDiv.textContent = "Desculpe, tivemos um problema ao enviar sua mensagem. Por favor, tente novamente.";
@@ -520,15 +531,20 @@
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
 
-    // Abrir chat quando o botão de toggle for clicado
     toggleButton.addEventListener('click', () => {
-        chatContainer.classList.toggle('open');
+        if (!chatOpened) {
+            chatOpened = true;
+        }
+        
+        if (chatContainer.classList.contains('open')) {
+            chatContainer.classList.remove('open');
+        } else {
+            chatContainer.classList.add('open');
+        }
     });
 
-    // Iniciar nova conversa quando o botão "Send us a message" for clicado
     newChatBtn.addEventListener('click', startNewConversation);
     
-    // Enviar mensagem quando o botão de envio for clicado
     sendButton.addEventListener('click', () => {
         const message = textarea.value.trim();
         if (message) {
@@ -537,7 +553,6 @@
         }
     });
     
-    // Enviar mensagem quando Enter for pressionado (sem Shift)
     textarea.addEventListener('keypress', (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
@@ -549,11 +564,17 @@
         }
     });
 
-    // Fechar chat quando o botão de fechar for clicado
     const closeButtons = chatContainer.querySelectorAll('.close-button');
     closeButtons.forEach(button => {
-        button.addEventListener('click', () => {
+        button.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
             chatContainer.classList.remove('open');
         });
+    });
+
+    textarea.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = (this.scrollHeight < 120) ? this.scrollHeight + 'px' : '120px';
     });
 })();
