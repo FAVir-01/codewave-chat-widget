@@ -337,7 +337,10 @@
 
     let currentSessionId = '';
     let chatOpened = false;
-
+    
+    // Armazenar sessões/contatos únicos
+    const activeContacts = new Map();
+    
     // Create widget container
     const widgetContainer = document.createElement('div');
     widgetContainer.className = 'chat-widget';
@@ -376,7 +379,11 @@
                 <span>${config.branding.name}</span>
                 <button class="close-button">×</button>
             </div>
-            <div class="chat-messages"></div>
+            <div class="chat-messages">
+                <div class="empty-state" style="text-align: center; padding: 20px; color: var(--chat--color-font); opacity: 0.7;">
+                    Nenhuma mensagem ainda. Inicie uma conversa!
+                </div>
+            </div>
             <div class="chat-input">
                 <textarea placeholder="Type your message here..." rows="1"></textarea>
                 <button type="submit">Send</button>
@@ -403,8 +410,12 @@
     const newChatBtn = chatContainer.querySelector('.new-chat-btn');
     const chatInterface = chatContainer.querySelector('.chat-interface');
     const messagesContainer = chatContainer.querySelector('.chat-messages');
+    const emptyState = messagesContainer.querySelector('.empty-state');
     const textarea = chatContainer.querySelector('textarea');
     const sendButton = chatContainer.querySelector('button[type="submit"]');
+    
+    // Garantir que a interface de chat esteja inicialmente oculta
+    chatInterface.style.display = 'none';
 
     function generateUUID() {
         return crypto.randomUUID ? crypto.randomUUID() : 
@@ -415,9 +426,36 @@
             });
     }
 
+    // Verificar se já existe uma sessão ativa para este contato
+    function getExistingSession(contactName) {
+        for (const [sessionId, contact] of activeContacts.entries()) {
+            if (contact.name === contactName) {
+                return sessionId;
+            }
+        }
+        return null;
+    }
+
     async function startNewConversation() {
         try {
-            currentSessionId = generateUUID();
+            // Verificar se já existe uma sessão para este contato antes de criar uma nova
+            const contactName = config.branding.name;
+            const existingSessionId = getExistingSession(contactName);
+            
+            if (existingSessionId) {
+                // Se existe, usar a sessão existente
+                currentSessionId = existingSessionId;
+                console.log(`Usando sessão existente para ${contactName}: ${currentSessionId}`);
+            } else {
+                // Se não, criar nova sessão
+                currentSessionId = generateUUID();
+                // Registrar o contato na lista de contatos ativos
+                activeContacts.set(currentSessionId, {
+                    name: contactName,
+                    avatar: config.branding.logo
+                });
+                console.log(`Nova sessão criada para ${contactName}: ${currentSessionId}`);
+            }
             
             const welcomeSection = chatContainer.querySelector('.new-conversation');
             
@@ -428,35 +466,53 @@
             chatInterface.style.display = 'flex';
             chatInterface.classList.add('active');
             
-            if (config.webhook && config.webhook.url) {
-                const data = [{
-                    action: "loadPreviousSession",
-                    sessionId: currentSessionId,
-                    route: config.webhook.route,
-                    metadata: {
-                        userId: ""
-                    }
-                }];
-
-                const response = await fetch(config.webhook.url, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(data)
-                });
-
-                const responseData = await response.json();
-
-                const botMessageDiv = document.createElement('div');
-                botMessageDiv.className = 'chat-message bot';
-                botMessageDiv.textContent = Array.isArray(responseData) ? responseData[0].output : responseData.output;
-                messagesContainer.appendChild(botMessageDiv);
+            // Verificar se há mensagens para mostrar ou ocultar o estado vazio
+            const hasMessages = messagesContainer.querySelectorAll('.chat-message').length > 0;
+            
+            if (hasMessages) {
+                // Se existem mensagens, ocultar o estado vazio
+                if (emptyState) emptyState.style.display = 'none';
             } else {
-                const botMessageDiv = document.createElement('div');
-                botMessageDiv.className = 'chat-message bot';
-                botMessageDiv.textContent = "Olá! Como posso ajudar você hoje?";
-                messagesContainer.appendChild(botMessageDiv);
+                // Se não existem mensagens, mostrar o estado vazio
+                if (emptyState) emptyState.style.display = 'block';
+                
+                // Tentar carregar mensagens do webhook ou exibir mensagem padrão
+                if (config.webhook && config.webhook.url) {
+                    const data = [{
+                        action: "loadPreviousSession",
+                        sessionId: currentSessionId,
+                        route: config.webhook.route,
+                        metadata: {
+                            userId: ""
+                        }
+                    }];
+
+                    const response = await fetch(config.webhook.url, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(data)
+                    });
+
+                    const responseData = await response.json();
+                    
+                    // Ocultar o estado vazio quando receber mensagens
+                    if (emptyState) emptyState.style.display = 'none';
+
+                    const botMessageDiv = document.createElement('div');
+                    botMessageDiv.className = 'chat-message bot';
+                    botMessageDiv.textContent = Array.isArray(responseData) ? responseData[0].output : responseData.output;
+                    messagesContainer.appendChild(botMessageDiv);
+                } else {
+                    // Ocultar o estado vazio quando criar mensagem padrão
+                    if (emptyState) emptyState.style.display = 'none';
+                    
+                    const botMessageDiv = document.createElement('div');
+                    botMessageDiv.className = 'chat-message bot';
+                    botMessageDiv.textContent = "Olá! Como posso ajudar você hoje?";
+                    messagesContainer.appendChild(botMessageDiv);
+                }
             }
             
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
@@ -465,6 +521,10 @@
             
             chatInterface.style.display = 'flex';
             chatInterface.classList.add('active');
+            
+            // Ocultar o estado vazio em caso de erro
+            if (emptyState) emptyState.style.display = 'none';
+            
             const errorMessageDiv = document.createElement('div');
             errorMessageDiv.className = 'chat-message bot';
             errorMessageDiv.textContent = "Desculpe, tivemos um problema ao iniciar a conversa. Por favor, tente novamente mais tarde.";
@@ -476,7 +536,18 @@
     async function sendMessage(message) {
         if (!currentSessionId) {
             currentSessionId = generateUUID();
+            
+            // Registrar o contato se ainda não existir
+            if (!activeContacts.has(currentSessionId)) {
+                activeContacts.set(currentSessionId, {
+                    name: config.branding.name,
+                    avatar: config.branding.logo
+                });
+            }
         }
+
+        // Ocultar o estado vazio quando enviar uma mensagem
+        if (emptyState) emptyState.style.display = 'none';
 
         const userMessageDiv = document.createElement('div');
         userMessageDiv.className = 'chat-message user';
@@ -531,6 +602,19 @@
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
 
+    // Resetar o chat se necessário
+    function resetChat() {
+        // Limpar mensagens existentes exceto o estado vazio
+        const messages = messagesContainer.querySelectorAll('.chat-message');
+        messages.forEach(msg => msg.remove());
+        
+        // Mostrar estado vazio
+        if (emptyState) emptyState.style.display = 'block';
+        
+        // Limpar o textarea
+        if (textarea) textarea.value = '';
+    }
+
     toggleButton.addEventListener('click', () => {
         if (!chatOpened) {
             chatOpened = true;
@@ -540,16 +624,30 @@
             chatContainer.classList.remove('open');
         } else {
             chatContainer.classList.add('open');
+            
+            // Garantir que as mensagens estejam visíveis se houver mensagens
+            const hasMessages = messagesContainer.querySelectorAll('.chat-message').length > 0;
+            if (hasMessages && emptyState) {
+                emptyState.style.display = 'none';
+            }
         }
     });
 
-    newChatBtn.addEventListener('click', startNewConversation);
+    newChatBtn.addEventListener('click', () => {
+        // Verificar se já existe uma conversa ativa
+        if (activeContacts.has(currentSessionId)) {
+            resetChat();
+        }
+        
+        startNewConversation();
+    });
     
     sendButton.addEventListener('click', () => {
         const message = textarea.value.trim();
         if (message) {
             sendMessage(message);
             textarea.value = '';
+            textarea.style.height = 'auto';
         }
     });
     
@@ -560,6 +658,7 @@
             if (message) {
                 sendMessage(message);
                 textarea.value = '';
+                textarea.style.height = 'auto';
             }
         }
     });
