@@ -449,7 +449,12 @@
         }
     }
 
-    newChatBtn.addEventListener('click', startNewConversation);
+    newChatBtn.addEventListener('click', (e) => {
+    e.preventDefault(); // Impede comportamento padrão
+    chatContainer.classList.add('open'); // Abre a interface do chat
+    startNewConversation();
+});
+
     
     sendButton.addEventListener('click', () => {
         const message = textarea.value.trim();
