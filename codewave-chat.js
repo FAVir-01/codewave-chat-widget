@@ -2,15 +2,15 @@
 (function() {
     // Create and inject styles
     const styles = `
-        .cdw-chat-widget {
-            --chat--color-primary: var(--cdw-chat-primary-color, #854fff);
-            --chat--color-secondary: var(--cdw-chat-secondary-color, #6b3fd4);
-            --chat--color-background: var(--cdw-chat-background-color, #ffffff);
-            --chat--color-font: var(--cdw-chat-font-color, #333333);
+        .chat-widget {
+            --chat--color-primary: var(--chat-primary-color, #854fff);
+            --chat--color-secondary: var(--chat-secondary-color, #6b3fd4);
+            --chat--color-background: var(--chat-background-color, #ffffff);
+            --chat--color-font: var(--chat-font-color, #333333);
             font-family: 'Geist Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
         }
 
-        .cdw-chat-widget .chat-container {
+        .chat-widget .chat-container {
             position: fixed;
             bottom: 20px;
             right: 20px;
@@ -26,17 +26,17 @@
             font-family: inherit;
         }
 
-        .cdw-chat-widget .chat-container.position-left {
+        .chat-widget .chat-container.position-left {
             right: auto;
             left: 20px;
         }
 
-        .cdw-chat-widget .chat-container.open {
+        .chat-widget .chat-container.open {
             display: flex;
             flex-direction: column;
         }
 
-        .cdw-chat-widget .brand-header {
+        .chat-widget .brand-header {
             padding: 16px;
             display: flex;
             align-items: center;
@@ -45,7 +45,7 @@
             position: relative;
         }
 
-        .cdw-chat-widget .close-button {
+        .chat-widget .close-button {
             position: absolute;
             right: 16px;
             top: 50%;
@@ -63,22 +63,22 @@
             opacity: 0.6;
         }
 
-        .cdw-chat-widget .close-button:hover {
+        .chat-widget .close-button:hover {
             opacity: 1;
         }
 
-        .cdw-chat-widget .brand-header img {
+        .chat-widget .brand-header img {
             width: 32px;
             height: 32px;
         }
 
-        .cdw-chat-widget .brand-header span {
+        .chat-widget .brand-header span {
             font-size: 18px;
             font-weight: 500;
             color: var(--chat--color-font);
         }
 
-        .cdw-chat-widget .new-conversation {
+        .chat-widget .new-conversation {
             position: absolute;
             top: 50%;
             left: 50%;
@@ -89,7 +89,7 @@
             max-width: 300px;
         }
 
-        .cdw-chat-widget .welcome-text {
+        .chat-widget .welcome-text {
             font-size: 24px;
             font-weight: 600;
             color: var(--chat--color-font);
@@ -97,7 +97,7 @@
             line-height: 1.3;
         }
 
-        .cdw-chat-widget .new-chat-btn {
+        .chat-widget .new-chat-btn {
             display: flex;
             align-items: center;
             justify-content: center;
@@ -116,33 +116,33 @@
             margin-bottom: 12px;
         }
 
-        .cdw-chat-widget .new-chat-btn:hover {
+        .chat-widget .new-chat-btn:hover {
             transform: scale(1.02);
         }
 
-        .cdw-chat-widget .message-icon {
+        .chat-widget .message-icon {
             width: 20px;
             height: 20px;
         }
 
-        .cdw-chat-widget .response-text {
+        .chat-widget .response-text {
             font-size: 14px;
             color: var(--chat--color-font);
             opacity: 0.7;
             margin: 0;
         }
 
-        .cdw-chat-widget .chat-interface {
+        .chat-widget .chat-interface {
             display: none;
             flex-direction: column;
             height: 100%;
         }
 
-        .cdw-chat-widget .chat-interface.active {
+        .chat-widget .chat-interface.active {
             display: flex;
         }
 
-        .cdw-chat-widget .chat-messages {
+        .chat-widget .chat-messages {
             flex: 1;
             overflow-y: auto;
             padding: 20px;
@@ -151,7 +151,7 @@
             flex-direction: column;
         }
 
-        .cdw-chat-widget .chat-message {
+        .chat-widget .chat-message {
             padding: 12px 16px;
             margin: 8px 0;
             border-radius: 12px;
@@ -161,7 +161,7 @@
             line-height: 1.5;
         }
 
-        .cdw-chat-widget .chat-message.user {
+        .chat-widget .chat-message.user {
             background: linear-gradient(135deg, var(--chat--color-primary) 0%, var(--chat--color-secondary) 100%);
             color: white;
             align-self: flex-end;
@@ -169,7 +169,7 @@
             border: none;
         }
 
-        .cdw-chat-widget .chat-message.bot {
+        .chat-widget .chat-message.bot {
             background: var(--chat--color-background);
             border: 1px solid rgba(133, 79, 255, 0.2);
             color: var(--chat--color-font);
@@ -177,7 +177,7 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
         }
 
-        .cdw-chat-widget .chat-input {
+        .chat-widget .chat-input {
             padding: 16px;
             background: var(--chat--color-background);
             border-top: 1px solid rgba(133, 79, 255, 0.1);
@@ -185,7 +185,7 @@
             gap: 8px;
         }
 
-        .cdw-chat-widget .chat-input textarea {
+        .chat-widget .chat-input textarea {
             flex: 1;
             padding: 12px;
             border: 1px solid rgba(133, 79, 255, 0.2);
@@ -197,12 +197,12 @@
             font-size: 14px;
         }
 
-        .cdw-chat-widget .chat-input textarea::placeholder {
+        .chat-widget .chat-input textarea::placeholder {
             color: var(--chat--color-font);
             opacity: 0.6;
         }
 
-        .cdw-chat-widget .chat-input button {
+        .chat-widget .chat-input button {
             background: linear-gradient(135deg, var(--chat--color-primary) 0%, var(--chat--color-secondary) 100%);
             color: white;
             border: none;
@@ -214,11 +214,11 @@
             font-weight: 500;
         }
 
-        .cdw-chat-widget .chat-input button:hover {
+        .chat-widget .chat-input button:hover {
             transform: scale(1.05);
         }
 
-        .cdw-chat-widget .chat-toggle {
+        .chat-widget .chat-toggle {
             position: fixed;
             bottom: 20px;
             right: 20px;
@@ -237,19 +237,39 @@
             justify-content: center;
         }
 
-        .cdw-chat-widget .chat-toggle.position-left {
+        .chat-widget .chat-toggle.position-left {
             right: auto;
             left: 20px;
         }
 
-        .cdw-chat-widget .chat-toggle:hover {
+        .chat-widget .chat-toggle:hover {
             transform: scale(1.05);
         }
 
-        .cdw-chat-widget .chat-toggle svg {
+        .chat-widget .chat-toggle svg {
             width: 24px;
             height: 24px;
             fill: currentColor;
+        }
+
+        .chat-widget .chat-footer {
+            padding: 8px;
+            text-align: center;
+            background: var(--chat--color-background);
+            border-top: 1px solid rgba(133, 79, 255, 0.1);
+        }
+
+        .chat-widget .chat-footer a {
+            color: var(--chat--color-primary);
+            text-decoration: none;
+            font-size: 12px;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+            font-family: inherit;
+        }
+
+        .chat-widget .chat-footer a:hover {
+            opacity: 1;
         }
     `;
 
@@ -298,20 +318,20 @@
         } : defaultConfig;
 
     // Prevent multiple initializations
-    if (window.CDWChatWidgetInitialized) return;
-    window.CDWChatWidgetInitialized = true;
+    if (window.ChatWidgetInitialized) return;
+    window.ChatWidgetInitialized = true;
 
     let currentSessionId = '';
 
     // Create widget container
     const widgetContainer = document.createElement('div');
-    widgetContainer.className = 'cdw-chat-widget';
+    widgetContainer.className = 'chat-widget';
     
     // Set CSS variables for colors
-    widgetContainer.style.setProperty('--cdw-chat-primary-color', config.style.primaryColor);
-    widgetContainer.style.setProperty('--cdw-chat-secondary-color', config.style.secondaryColor);
-    widgetContainer.style.setProperty('--cdw-chat-background-color', config.style.backgroundColor);
-    widgetContainer.style.setProperty('--cdw-chat-font-color', config.style.fontColor);
+    widgetContainer.style.setProperty('--chat-primary-color', config.style.primaryColor);
+    widgetContainer.style.setProperty('--chat-secondary-color', config.style.secondaryColor);
+    widgetContainer.style.setProperty('--chat-background-color', config.style.backgroundColor);
+    widgetContainer.style.setProperty('--chat-font-color', config.style.fontColor);
 
     const chatContainer = document.createElement('div');
     chatContainer.className = `chat-container${config.style.position === 'left' ? ' position-left' : ''}`;
@@ -334,7 +354,6 @@
         </div>
     `;
 
-    // Removi a div .chat-footer do HTML, pois ela será adicionada via funcionalidade abaixo.
     const chatInterfaceHTML = `
         <div class="chat-interface">
             <div class="brand-header">
@@ -346,6 +365,9 @@
             <div class="chat-input">
                 <textarea placeholder="Type your message here..." rows="1"></textarea>
                 <button type="submit">Send</button>
+            </div>
+            <div class="chat-footer">
+                <a href="${config.branding.poweredBy.link}" target="_blank">${config.branding.poweredBy.text}</a>
             </div>
         </div>
     `;
@@ -370,57 +392,78 @@
     const sendButton = chatContainer.querySelector('button[type="submit"]');
 
     function generateUUID() {
-        return crypto.randomUUID();
+        return crypto.randomUUID ? crypto.randomUUID() : 
+            'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                const r = Math.random() * 16 | 0;
+                const v = c === 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
     }
 
     async function startNewConversation() {
-        // Correção: abre o chat ao clicar em "Send us a message"
-        chatContainer.classList.add('open');
-
-        currentSessionId = generateUUID();
-        const data = [{
-            action: "loadPreviousSession",
-            sessionId: currentSessionId,
-            route: config.webhook.route,
-            metadata: {
-                userId: ""
-            }
-        }];
-
         try {
-            const response = await fetch(config.webhook.url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
-            });
-
-            const responseData = await response.json();
-            chatContainer.querySelector('.brand-header').style.display = 'none';
-            chatContainer.querySelector('.new-conversation').style.display = 'none';
+            currentSessionId = generateUUID();
+            
+            // Mostrar a interface de chat imediatamente, sem esperar pela resposta do webhook
+            const welcomeHeader = chatContainer.querySelector('.brand-header');
+            const welcomeConversation = chatContainer.querySelector('.new-conversation');
+            
+            if (welcomeHeader) welcomeHeader.style.display = 'none';
+            if (welcomeConversation) welcomeConversation.style.display = 'none';
+            
             chatInterface.classList.add('active');
+            
+            // Se um webhook estiver configurado, envie a solicitação
+            if (config.webhook && config.webhook.url) {
+                const data = [{
+                    action: "loadPreviousSession",
+                    sessionId: currentSessionId,
+                    route: config.webhook.route,
+                    metadata: {
+                        userId: ""
+                    }
+                }];
 
-            const botMessageDiv = document.createElement('div');
-            botMessageDiv.className = 'chat-message bot';
-            botMessageDiv.textContent = Array.isArray(responseData) ? responseData[0].output : responseData.output;
-            messagesContainer.appendChild(botMessageDiv);
+                const response = await fetch(config.webhook.url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const responseData = await response.json();
+
+                const botMessageDiv = document.createElement('div');
+                botMessageDiv.className = 'chat-message bot';
+                botMessageDiv.textContent = Array.isArray(responseData) ? responseData[0].output : responseData.output;
+                messagesContainer.appendChild(botMessageDiv);
+            } else {
+                // Mensagem padrão se nenhum webhook for configurado
+                const botMessageDiv = document.createElement('div');
+                botMessageDiv.className = 'chat-message bot';
+                botMessageDiv.textContent = "Olá! Como posso ajudar você hoje?";
+                messagesContainer.appendChild(botMessageDiv);
+            }
+            
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         } catch (error) {
-            console.error('Error:', error);
+            console.error('Error starting conversation:', error);
+            
+            // Mostrar mensagem de erro na interface de chat
+            chatInterface.classList.add('active');
+            const errorMessageDiv = document.createElement('div');
+            errorMessageDiv.className = 'chat-message bot';
+            errorMessageDiv.textContent = "Desculpe, tivemos um problema ao iniciar a conversa. Por favor, tente novamente mais tarde.";
+            messagesContainer.appendChild(errorMessageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
     }
 
     async function sendMessage(message) {
-        const messageData = {
-            action: "sendMessage",
-            sessionId: currentSessionId,
-            route: config.webhook.route,
-            chatInput: message,
-            metadata: {
-                userId: ""
-            }
-        };
+        if (!currentSessionId) {
+            currentSessionId = generateUUID();
+        }
 
         const userMessageDiv = document.createElement('div');
         userMessageDiv.className = 'chat-message user';
@@ -429,33 +472,63 @@
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
         try {
-            const response = await fetch(config.webhook.url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(messageData)
-            });
-            
-            const data = await response.json();
-            
-            const botMessageDiv = document.createElement('div');
-            botMessageDiv.className = 'chat-message bot';
-            botMessageDiv.textContent = Array.isArray(data) ? data[0].output : data.output;
-            messagesContainer.appendChild(botMessageDiv);
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            if (config.webhook && config.webhook.url) {
+                const messageData = {
+                    action: "sendMessage",
+                    sessionId: currentSessionId,
+                    route: config.webhook.route,
+                    chatInput: message,
+                    metadata: {
+                        userId: ""
+                    }
+                };
+                
+                const response = await fetch(config.webhook.url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(messageData)
+                });
+                
+                const data = await response.json();
+                
+                const botMessageDiv = document.createElement('div');
+                botMessageDiv.className = 'chat-message bot';
+                botMessageDiv.textContent = Array.isArray(data) ? data[0].output : data.output;
+                messagesContainer.appendChild(botMessageDiv);
+            } else {
+                // Resposta padrão se nenhum webhook for configurado
+                setTimeout(() => {
+                    const botMessageDiv = document.createElement('div');
+                    botMessageDiv.className = 'chat-message bot';
+                    botMessageDiv.textContent = "Recebemos sua mensagem! Um agente entrará em contato em breve.";
+                    messagesContainer.appendChild(botMessageDiv);
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                }, 500);
+            }
         } catch (error) {
-            console.error('Error:', error);
+            console.error('Error sending message:', error);
+            
+            // Mostrar mensagem de erro na interface de chat
+            const errorMessageDiv = document.createElement('div');
+            errorMessageDiv.className = 'chat-message bot';
+            errorMessageDiv.textContent = "Desculpe, tivemos um problema ao enviar sua mensagem. Por favor, tente novamente.";
+            messagesContainer.appendChild(errorMessageDiv);
         }
+        
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
 
-    newChatBtn.addEventListener('click', (e) => {
-    e.preventDefault(); // Impede comportamento padrão
-    chatContainer.classList.add('open'); // Abre a interface do chat
-    startNewConversation();
-});
+    // Abrir chat quando o botão de toggle for clicado
+    toggleButton.addEventListener('click', () => {
+        chatContainer.classList.toggle('open');
+    });
 
+    // Iniciar nova conversa quando o botão "Send us a message" for clicado
+    newChatBtn.addEventListener('click', startNewConversation);
     
+    // Enviar mensagem quando o botão de envio for clicado
     sendButton.addEventListener('click', () => {
         const message = textarea.value.trim();
         if (message) {
@@ -464,6 +537,7 @@
         }
     });
     
+    // Enviar mensagem quando Enter for pressionado (sem Shift)
     textarea.addEventListener('keypress', (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
@@ -474,80 +548,12 @@
             }
         }
     });
-    
-    toggleButton.addEventListener('click', () => {
-        chatContainer.classList.toggle('open');
-    });
 
-    // Add close button handlers
+    // Fechar chat quando o botão de fechar for clicado
     const closeButtons = chatContainer.querySelectorAll('.close-button');
     closeButtons.forEach(button => {
         button.addEventListener('click', () => {
             chatContainer.classList.remove('open');
         });
     });
-
-    // Powered By Configuration
-    (function() {
-        const poweredByDefault = {
-            branding: {
-                poweredBy: {
-                    text: 'Powered by CodeWave.ia',
-                    link: '#'
-                }
-            }
-        };
-
-        // Merge user config with defaults for Powered By
-        const mergedBranding = config.branding ? { 
-            ...poweredByDefault.branding, 
-            ...config.branding 
-        } : poweredByDefault;
-
-        const chatFooterHTML = `
-            <div class="chat-footer">
-                <a href="${mergedBranding.poweredBy.link}" target="_blank">
-                    ${mergedBranding.poweredBy.text}
-                </a>
-            </div>
-        `;
-
-        const poweredByStyles = `
-            .cdw-chat-widget .chat-footer {
-                padding: 8px;
-                text-align: center;
-                background: var(--chat--color-background);
-                border-top: 1px solid rgba(133, 79, 255, 0.1);
-            }
-
-            .cdw-chat-widget .chat-footer a {
-                color: var(--chat--color-primary);
-                text-decoration: none;
-                font-size: 12px;
-                opacity: 0.8;
-                transition: opacity 0.2s;
-                font-family: inherit;
-            }
-
-            .cdw-chat-widget .chat-footer a:hover {
-                opacity: 1;
-            }
-        `;
-
-        function addPoweredByFooter(chatContainer) {
-            // Add styles
-            const styleSheet = document.createElement('style');
-            styleSheet.textContent = poweredByStyles;
-            document.head.appendChild(styleSheet);
-
-            // Add footer to chat interface
-            const chatInterface = chatContainer.querySelector('.chat-interface');
-            if (chatInterface) {
-                const footerDiv = document.createElement('div');
-                footerDiv.innerHTML = chatFooterHTML;
-                chatInterface.appendChild(footerDiv.firstElementChild);
-            }
-        }
-        addPoweredByFooter(chatContainer);
-    })();
 })();
