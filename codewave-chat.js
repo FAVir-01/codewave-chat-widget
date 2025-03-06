@@ -348,6 +348,15 @@
     const textarea = chatContainer.querySelector('textarea');
     const sendButton = chatContainer.querySelector('button[type="submit"]');
     
+    // Função auxiliar para exibir mensagens de erro no widget
+    function displayError(message) {
+        const errorMessageDiv = document.createElement('div');
+        errorMessageDiv.className = 'chat-message bot';
+        errorMessageDiv.textContent = message;
+        messagesContainer.appendChild(errorMessageDiv);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+    
     function generateUUID() {
         return crypto.randomUUID ? crypto.randomUUID() : 
             'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
@@ -374,6 +383,7 @@
                 baserowRowId = responseData.id;
             } catch (e) {
                 console.error('Erro ao criar a linha:', e);
+                displayError('Erro ao iniciar a conversa. Tente novamente.');
             }
         } else if (action === 'sendMessage' && baserowRowId) {
             const url = `${config.baserow.apiUrl}/${baserowRowId}/?user_field_names=true`;
@@ -385,7 +395,11 @@
                 });
             } catch (e) {
                 console.error('Erro ao atualizar a linha:', e);
+                displayError('Erro ao enviar sua mensagem. Tente novamente.');
             }
+        } else {
+            console.error('Nenhuma linha para atualizar. Inicie a conversa primeiro.');
+            displayError('Erro: Inicie a conversa antes de enviar mensagens.');
         }
     }
     
@@ -401,6 +415,7 @@
             return data.output;
         } catch (e) {
             console.error('Erro ao buscar resposta do Baserow:', e);
+            displayError('Erro ao buscar resposta. Tente novamente.');
         }
     }
     
@@ -411,13 +426,20 @@
             await handleChatEvent('startConversation', '');
         }
         setTimeout(async () => {
-            const botResponse = await fetchBaserowResponse();
+            let botResponse;
+            try {
+                botResponse = await fetchBaserowResponse();
+            } catch (error) {
+                console.error('Erro ao buscar resposta:', error);
+            }
             if (botResponse) {
                 const botMessageDiv = document.createElement('div');
                 botMessageDiv.className = 'chat-message bot';
                 botMessageDiv.textContent = botResponse;
                 messagesContainer.appendChild(botMessageDiv);
                 messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            } else {
+                displayError('Nenhuma resposta recebida. Tente novamente.');
             }
         }, 1000);
     }
@@ -434,13 +456,20 @@
         }
     
         setTimeout(async () => {
-            const botResponse = await fetchBaserowResponse();
+            let botResponse;
+            try {
+                botResponse = await fetchBaserowResponse();
+            } catch (error) {
+                console.error('Erro ao buscar resposta:', error);
+            }
             if (botResponse) {
                 const botMessageDiv = document.createElement('div');
                 botMessageDiv.className = 'chat-message bot';
                 botMessageDiv.textContent = botResponse;
                 messagesContainer.appendChild(botMessageDiv);
                 messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            } else {
+                displayError('Nenhuma resposta recebida. Tente novamente.');
             }
         }, 1000);
     }
