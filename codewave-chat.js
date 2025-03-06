@@ -325,6 +325,7 @@
     window.ChatWidgetInitialized = true;
 
     let currentSessionId = '';
+    let baserowRowId = null; // Variável para armazenar o ID da linha criada no Baserow
 
     // Create widget container
     const widgetContainer = document.createElement('div');
@@ -403,28 +404,57 @@
             });
     }
 
-    // NOVO: Função para registrar eventos no Baserow via HTTP POST
-    async function logChatEvent(action, chatInput) {
+    // Função para lidar com eventos de chat usando Baserow:
+    // Se action for "startConversation", cria uma nova linha (POST);
+    // Se for "sendMessage", atualiza a linha existente (PATCH).
+    async function handleChatEvent(action, chatInput) {
         if (!config.baserow || !config.baserow.apiUrl || !config.baserow.token) return;
-        const url = config.baserow.apiUrl;
         const token = config.baserow.token;
         const data = {
             sessionId: currentSessionId,
             action: action,
             chatImput: chatInput
         };
-        try {
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Token ${token}`
-                },
-                body: JSON.stringify(data)
-            });
-            return await response.json();
-        } catch (e) {
-            console.error('Error logging chat event:', e);
+
+        if (action === 'startConversation') {
+            // Cria uma nova linha
+            const url = config.baserow.apiUrl;
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Token ${token}`
+                    },
+                    body: JSON.stringify(data)
+                });
+                const responseData = await response.json();
+                baserowRowId = responseData.id; // Armazena o ID da linha criada
+                return responseData;
+            } catch (e) {
+                console.error('Erro ao criar a linha:', e);
+            }
+        } else if (action === 'sendMessage') {
+            // Atualiza a linha existente
+            if (!baserowRowId) {
+                console.error('Nenhuma linha criada para atualizar. Execute startConversation primeiro.');
+                return;
+            }
+            // Monta a URL para atualizar a linha usando o ID armazenado
+            const url = config.baserow.apiUrl.replace(/\/\?user_field_names=true$/, `/${baserowRowId}/?user_field_names=true`);
+            try {
+                const response = await fetch(url, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Token ${token}`
+                    },
+                    body: JSON.stringify(data)
+                });
+                return await response.json();
+            } catch (e) {
+                console.error('Erro ao atualizar a linha:', e);
+            }
         }
     }
 
@@ -441,12 +471,12 @@
             
             chatInterface.classList.add('active');
             
-            // Registrar início da conversa no Baserow, se configurado
+            // Registrar início da conversa no Baserow
             if (config.baserow) {
-                await logChatEvent('startConversation', '');
+                await handleChatEvent('startConversation', '');
             }
             
-            // Se um webhook estiver configurado, envie a solicitação
+            // Se um webhook estiver configurado, envia a solicitação
             if (config.webhook && config.webhook.url) {
                 const data = [{
                     action: "loadPreviousSession",
@@ -500,9 +530,9 @@
         messagesContainer.appendChild(userMessageDiv);
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
-        // Registrar envio da mensagem no Baserow, se configurado
+        // Registrar envio da mensagem no Baserow
         if (config.baserow) {
-            await logChatEvent('sendMessage', message);
+            await handleChatEvent('sendMessage', message);
         }
 
         try {
