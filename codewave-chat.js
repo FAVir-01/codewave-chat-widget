@@ -404,6 +404,27 @@
             });
     }
 
+    // Função para buscar a resposta (campo "output") do Baserow via GET
+    async function fetchBaserowResponse() {
+        if (!config.baserow || !config.baserow.apiUrl || !config.baserow.token || !baserowRowId) return null;
+        // Constrói a URL com o ID da linha criado
+        const url = config.baserow.apiUrl.replace(/\/\?user_field_names=true$/, `/${baserowRowId}/?user_field_names=true`);
+        try {
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Token ${config.baserow.token}`
+                }
+            });
+            const data = await response.json();
+            return data.output;
+        } catch (e) {
+            console.error('Erro ao buscar resposta do Baserow:', e);
+            return null;
+        }
+    }
+
     // Função para lidar com eventos de chat usando Baserow:
     // Se action for "startConversation", cria uma nova linha (POST);
     // Se for "sendMessage", atualiza a linha existente (PATCH).
@@ -435,7 +456,7 @@
                 console.error('Erro ao criar a linha:', e);
                 const errorMessageDiv = document.createElement('div');
                 errorMessageDiv.className = 'chat-message bot';
-                errorMessageDiv.textContent = "Desculpe, tivemos um problema ao iniciar a conversa. Por favor, tente novamente mais tarde.";
+                errorMessageDiv.textContent = "Desculpe, tivemos um problema ao iniciar a conversa. Tente novamente.";
                 messagesContainer.appendChild(errorMessageDiv);
             }
         } else if (action === 'sendMessage') {
@@ -464,7 +485,7 @@
                 console.error('Erro ao atualizar a linha:', e);
                 const errorMessageDiv = document.createElement('div');
                 errorMessageDiv.className = 'chat-message bot';
-                errorMessageDiv.textContent = "Desculpe, tivemos um problema ao enviar sua mensagem. Por favor, tente novamente.";
+                errorMessageDiv.textContent = "Desculpe, tivemos um problema ao enviar sua mensagem. Tente novamente.";
                 messagesContainer.appendChild(errorMessageDiv);
             }
         }
@@ -474,10 +495,9 @@
         try {
             currentSessionId = generateUUID();
             
-            // Mostrar a interface de chat imediatamente, sem esperar pela resposta do webhook
+            // Oculta os elementos de boas-vindas
             const welcomeHeader = chatContainer.querySelector('.brand-header');
             const welcomeConversation = chatContainer.querySelector('.new-conversation');
-            
             if (welcomeHeader) welcomeHeader.style.display = 'none';
             if (welcomeConversation) welcomeConversation.style.display = 'none';
             
@@ -488,47 +508,21 @@
                 await handleChatEvent('startConversation', '');
             }
             
-            // Se um webhook estiver configurado, envia a solicitação
-            if (config.webhook && config.webhook.url) {
-                const data = [{
-                    action: "loadPreviousSession",
-                    sessionId: currentSessionId,
-                    route: config.webhook.route,
-                    metadata: { userId: "" }
-                }];
-
-                const response = await fetch(config.webhook.url, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(data)
-                });
-
-                const responseData = await response.json();
-                let output = Array.isArray(responseData) ? responseData[0].output : responseData.output;
-                if (!output) {
-                    output = "Desculpe, não conseguimos recuperar uma resposta. Tente novamente.";
-                }
+            // Após 1 segundo, busca a resposta do campo "output" no Baserow e exibe
+            setTimeout(async () => {
+                const botResponse = await fetchBaserowResponse();
                 const botMessageDiv = document.createElement('div');
                 botMessageDiv.className = 'chat-message bot';
-                botMessageDiv.textContent = output;
+                botMessageDiv.textContent = botResponse || "Desculpe, não recebemos uma resposta. Tente novamente.";
                 messagesContainer.appendChild(botMessageDiv);
-            } else {
-                // Mensagem padrão se nenhum webhook for configurado
-                const botMessageDiv = document.createElement('div');
-                botMessageDiv.className = 'chat-message bot';
-                botMessageDiv.textContent = "Olá! Como posso ajudar você hoje?";
-                messagesContainer.appendChild(botMessageDiv);
-            }
-            
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }, 1000);
         } catch (error) {
             console.error('Error starting conversation:', error);
             chatInterface.classList.add('active');
             const errorMessageDiv = document.createElement('div');
             errorMessageDiv.className = 'chat-message bot';
-            errorMessageDiv.textContent = "Desculpe, tivemos um problema ao iniciar a conversa. Por favor, tente novamente mais tarde.";
+            errorMessageDiv.textContent = "Desculpe, tivemos um problema ao iniciar a conversa. Tente novamente.";
             messagesContainer.appendChild(errorMessageDiv);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
@@ -550,52 +544,15 @@
             await handleChatEvent('sendMessage', message);
         }
 
-        try {
-            if (config.webhook && config.webhook.url) {
-                const messageData = {
-                    action: "sendMessage",
-                    sessionId: currentSessionId,
-                    route: config.webhook.route,
-                    chatInput: message,
-                    metadata: { userId: "" }
-                };
-                
-                const response = await fetch(config.webhook.url, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(messageData)
-                });
-                
-                const data = await response.json();
-                let output = Array.isArray(data) ? data[0].output : data.output;
-                if (!output) {
-                    output = "Desculpe, não recebemos uma resposta. Tente novamente.";
-                }
-                const botMessageDiv = document.createElement('div');
-                botMessageDiv.className = 'chat-message bot';
-                botMessageDiv.textContent = output;
-                messagesContainer.appendChild(botMessageDiv);
-            } else {
-                // Resposta padrão se nenhum webhook for configurado
-                setTimeout(() => {
-                    const botMessageDiv = document.createElement('div');
-                    botMessageDiv.className = 'chat-message bot';
-                    botMessageDiv.textContent = "Recebemos sua mensagem! Um agente entrará em contato em breve.";
-                    messagesContainer.appendChild(botMessageDiv);
-                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
-                }, 500);
-            }
-        } catch (error) {
-            console.error('Error sending message:', error);
-            const errorMessageDiv = document.createElement('div');
-            errorMessageDiv.className = 'chat-message bot';
-            errorMessageDiv.textContent = "Desculpe, tivemos um problema ao enviar sua mensagem. Por favor, tente novamente.";
-            messagesContainer.appendChild(errorMessageDiv);
-        }
-        
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        // Após 1 segundo, busca a resposta atualizada do Baserow e exibe no chat
+        setTimeout(async () => {
+            const botResponse = await fetchBaserowResponse();
+            const botMessageDiv = document.createElement('div');
+            botMessageDiv.className = 'chat-message bot';
+            botMessageDiv.textContent = botResponse || "Desculpe, não recebemos uma resposta. Tente novamente.";
+            messagesContainer.appendChild(botMessageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }, 1000);
     }
 
     // Abrir chat quando o botão de toggle for clicado
