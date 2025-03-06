@@ -1,6 +1,6 @@
 // Chat Widget Script
 (function() {
-    // Criação e injeção dos estilos
+    // Estilos e interface permanecem os mesmos
     const styles = `
         .chat-widget {
             --chat--color-primary: var(--chat-primary-color, #854fff);
@@ -250,21 +250,15 @@
     styleSheet.textContent = styles;
     document.head.appendChild(styleSheet);
     
-    // Configuração padrão
+    // Configuração padrão e merge com a configuração do usuário
     const defaultConfig = {
-        webhook: {
-            url: '',
-            route: ''
-        },
+        webhook: { url: '', route: '' },
         branding: {
             logo: '',
             name: '',
             welcomeText: '',
             responseTimeText: '',
-            poweredBy: {
-                text: 'Powered by ChatWidget',
-                link: '#'
-            }
+            poweredBy: { text: 'Powered by ChatWidget', link: '#' }
         },
         style: {
             primaryColor: '',
@@ -283,7 +277,6 @@
             baserow: window.ChatWidgetConfig.baserow || null
         } : defaultConfig;
     
-    // Evita inicializações múltiplas
     if (window.ChatWidgetInitialized) return;
     window.ChatWidgetInitialized = true;
     
@@ -356,7 +349,7 @@
     const sendButton = chatContainer.querySelector('button[type="submit"]');
     
     function generateUUID() {
-        return crypto.randomUUID ? crypto.randomUUID() :
+        return crypto.randomUUID ? crypto.randomUUID() : 
             'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
                 const r = Math.random() * 16 | 0;
                 const v = c === 'x' ? r : (r & 0x3 | 0x8);
