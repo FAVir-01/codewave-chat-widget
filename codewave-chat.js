@@ -1,5 +1,7 @@
 // Chat Widget Script
 (function() {
+    // Código de estilos e interface permanece inalterado
+
     const config = window.ChatWidgetConfig || {};
     let currentSessionId = '';
     let baserowRowId = null;
@@ -73,6 +75,7 @@
         messageDiv.className = `chat-message ${sender}`;
         messageDiv.textContent = text;
         document.querySelector('.chat-messages').appendChild(messageDiv);
+        document.querySelector('.chat-messages').scrollTop = document.querySelector('.chat-messages').scrollHeight;
     }
 
     document.querySelector('.new-chat-btn').addEventListener('click', startNewConversation);
@@ -81,6 +84,17 @@
         if (message) {
             sendMessage(message);
             document.querySelector('textarea').value = '';
+        }
+    });
+
+    document.querySelector('textarea').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            const message = document.querySelector('textarea').value.trim();
+            if (message) {
+                sendMessage(message);
+                document.querySelector('textarea').value = '';
+            }
         }
     });
 })();
