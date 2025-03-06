@@ -9,9 +9,270 @@
             --chat--color-font: var(--chat-font-color, #333333);
             font-family: 'Geist Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
         }
-        /* (restante dos estilos idênticos ao seu código original) */
+
+        .chat-widget .chat-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: none;
+            width: 380px;
+            height: 600px;
+            background: var(--chat--color-background);
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(133, 79, 255, 0.15);
+            border: 1px solid rgba(133, 79, 255, 0.2);
+            overflow: hidden;
+            font-family: inherit;
+        }
+
+        .chat-widget .chat-container.position-left {
+            right: auto;
+            left: 20px;
+        }
+
+        .chat-widget .chat-container.open {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-widget .brand-header {
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid rgba(133, 79, 255, 0.1);
+            position: relative;
+        }
+
+        .chat-widget .close-button {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--chat--color-font);
+            cursor: pointer;
+            padding: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.2s;
+            font-size: 20px;
+            opacity: 0.6;
+        }
+
+        .chat-widget .close-button:hover {
+            opacity: 1;
+        }
+
+        .chat-widget .brand-header img {
+            width: 32px;
+            height: 32px;
+        }
+
+        .chat-widget .brand-header span {
+            font-size: 18px;
+            font-weight: 500;
+            color: var(--chat--color-font);
+        }
+
+        .chat-widget .new-conversation {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            text-align: center;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        .chat-widget .welcome-text {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--chat--color-font);
+            margin-bottom: 24px;
+            line-height: 1.3;
+        }
+
+        .chat-widget .new-chat-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 16px 24px;
+            background: linear-gradient(135deg, var(--chat--color-primary) 0%, var(--chat--color-secondary) 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: transform 0.3s;
+            font-weight: 500;
+            font-family: inherit;
+            margin-bottom: 12px;
+        }
+
+        .chat-widget .new-chat-btn:hover {
+            transform: scale(1.02);
+        }
+
+        .chat-widget .message-icon {
+            width: 20px;
+            height: 20px;
+        }
+
+        .chat-widget .response-text {
+            font-size: 14px;
+            color: var(--chat--color-font);
+            opacity: 0.7;
+            margin: 0;
+        }
+
+        .chat-widget .chat-interface {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .chat-widget .chat-interface.active {
+            display: flex;
+        }
+
+        .chat-widget .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: var(--chat--color-background);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-widget .chat-message {
+            padding: 12px 16px;
+            margin: 8px 0;
+            border-radius: 12px;
+            max-width: 80%;
+            word-wrap: break-word;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .chat-widget .chat-message.user {
+            background: linear-gradient(135deg, var(--chat--color-primary) 0%, var(--chat--color-secondary) 100%);
+            color: white;
+            align-self: flex-end;
+            box-shadow: 0 4px 12px rgba(133, 79, 255, 0.2);
+            border: none;
+        }
+
+        .chat-widget .chat-message.bot {
+            background: var(--chat--color-background);
+            border: 1px solid rgba(133, 79, 255, 0.2);
+            color: var(--chat--color-font);
+            align-self: flex-start;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .chat-widget .chat-input {
+            padding: 16px;
+            background: var(--chat--color-background);
+            border-top: 1px solid rgba(133, 79, 255, 0.1);
+            display: flex;
+            gap: 8px;
+        }
+
+        .chat-widget .chat-input textarea {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid rgba(133, 79, 255, 0.2);
+            border-radius: 8px;
+            background: var(--chat--color-background);
+            color: var(--chat--color-font);
+            resize: none;
+            font-family: inherit;
+            font-size: 14px;
+        }
+
+        .chat-widget .chat-input textarea::placeholder {
+            color: var(--chat--color-font);
+            opacity: 0.6;
+        }
+
+        .chat-widget .chat-input button {
+            background: linear-gradient(135deg, var(--chat--color-primary) 0%, var(--chat--color-secondary) 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 0 20px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            font-family: inherit;
+            font-weight: 500;
+        }
+
+        .chat-widget .chat-input button:hover {
+            transform: scale(1.05);
+        }
+
+        .chat-widget .chat-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            border-radius: 30px;
+            background: linear-gradient(135deg, var(--chat--color-primary) 0%, var(--chat--color-secondary) 100%);
+            color: white;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(133, 79, 255, 0.3);
+            z-index: 999;
+            transition: transform 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chat-widget .chat-toggle.position-left {
+            right: auto;
+            left: 20px;
+        }
+
+        .chat-widget .chat-toggle:hover {
+            transform: scale(1.05);
+        }
+
+        .chat-widget .chat-toggle svg {
+            width: 24px;
+            height: 24px;
+            fill: currentColor;
+        }
+
+        .chat-widget .chat-footer {
+            padding: 8px;
+            text-align: center;
+            background: var(--chat--color-background);
+            border-top: 1px solid rgba(133, 79, 255, 0.1);
+        }
+
+        .chat-widget .chat-footer a {
+            color: var(--chat--color-primary);
+            text-decoration: none;
+            font-size: 12px;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+            font-family: inherit;
+        }
+
+        .chat-widget .chat-footer a:hover {
+            opacity: 1;
+        }
     `;
-    
+
     // Load Geist font
     const fontLink = document.createElement('link');
     fontLink.rel = 'stylesheet';
@@ -23,7 +284,7 @@
     styleSheet.textContent = styles;
     document.head.appendChild(styleSheet);
 
-    // Default configuration, incluindo a nova chave "baserow"
+    // Default configuration
     const defaultConfig = {
         webhook: {
             url: '',
@@ -46,6 +307,7 @@
             backgroundColor: '#ffffff',
             fontColor: '#333333'
         },
+        // Nova configuração para integração com Baserow
         baserow: null
     };
 
@@ -143,34 +405,34 @@
 
     // NOVO: Função para registrar eventos no Baserow via HTTP POST
     async function logChatEvent(action, chatInput) {
-       if (!config.baserow) return;
-       const url = config.baserow.apiUrl;
-       const token = config.baserow.token;
-       const data = {
-          sessionId: currentSessionId,
-          action: action,
-          chatImput: chatInput
-       };
-       try {
-          const response = await fetch(url, {
-             method: 'POST',
-             headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Token ${token}`
-             },
-             body: JSON.stringify(data)
-          });
-          return await response.json();
-       } catch(e) {
-          console.error('Error logging chat event:', e);
-       }
+        if (!config.baserow || !config.baserow.apiUrl || !config.baserow.token) return;
+        const url = config.baserow.apiUrl;
+        const token = config.baserow.token;
+        const data = {
+            sessionId: currentSessionId,
+            action: action,
+            chatImput: chatInput
+        };
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Token ${token}`
+                },
+                body: JSON.stringify(data)
+            });
+            return await response.json();
+        } catch (e) {
+            console.error('Error logging chat event:', e);
+        }
     }
 
     async function startNewConversation() {
         try {
             currentSessionId = generateUUID();
             
-            // Esconde a interface inicial
+            // Mostrar a interface de chat imediatamente, sem esperar pela resposta do webhook
             const welcomeHeader = chatContainer.querySelector('.brand-header');
             const welcomeConversation = chatContainer.querySelector('.new-conversation');
             
@@ -179,12 +441,12 @@
             
             chatInterface.classList.add('active');
             
-            // Registra o início da conversa na tabela do Baserow (se configurado)
+            // Registrar início da conversa no Baserow, se configurado
             if (config.baserow) {
                 await logChatEvent('startConversation', '');
             }
             
-            // Se um webhook estiver configurado, envia a solicitação
+            // Se um webhook estiver configurado, envie a solicitação
             if (config.webhook && config.webhook.url) {
                 const data = [{
                     action: "loadPreviousSession",
@@ -195,7 +457,9 @@
 
                 const response = await fetch(config.webhook.url, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
                     body: JSON.stringify(data)
                 });
 
@@ -206,6 +470,7 @@
                 botMessageDiv.textContent = Array.isArray(responseData) ? responseData[0].output : responseData.output;
                 messagesContainer.appendChild(botMessageDiv);
             } else {
+                // Mensagem padrão se nenhum webhook for configurado
                 const botMessageDiv = document.createElement('div');
                 botMessageDiv.className = 'chat-message bot';
                 botMessageDiv.textContent = "Olá! Como posso ajudar você hoje?";
@@ -235,7 +500,7 @@
         messagesContainer.appendChild(userMessageDiv);
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
-        // Registra o envio da mensagem na tabela do Baserow (se configurado)
+        // Registrar envio da mensagem no Baserow, se configurado
         if (config.baserow) {
             await logChatEvent('sendMessage', message);
         }
@@ -252,7 +517,9 @@
                 
                 const response = await fetch(config.webhook.url, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
                     body: JSON.stringify(messageData)
                 });
                 
@@ -263,6 +530,7 @@
                 botMessageDiv.textContent = Array.isArray(data) ? data[0].output : data.output;
                 messagesContainer.appendChild(botMessageDiv);
             } else {
+                // Resposta padrão se nenhum webhook for configurado
                 setTimeout(() => {
                     const botMessageDiv = document.createElement('div');
                     botMessageDiv.className = 'chat-message bot';
