@@ -1,6 +1,6 @@
 // Chat Widget Script
 (function() {
-    // Estilos e interface permanecem os mesmos
+    // Create and inject styles
     const styles = `
         .chat-widget {
             --chat--color-primary: var(--chat-primary-color, #854fff);
@@ -9,6 +9,7 @@
             --chat--color-font: var(--chat-font-color, #333333);
             font-family: 'Geist Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
         }
+
         .chat-widget .chat-container {
             position: fixed;
             bottom: 20px;
@@ -24,14 +25,17 @@
             overflow: hidden;
             font-family: inherit;
         }
+
         .chat-widget .chat-container.position-left {
             right: auto;
             left: 20px;
         }
+
         .chat-widget .chat-container.open {
             display: flex;
             flex-direction: column;
         }
+
         .chat-widget .brand-header {
             padding: 16px;
             display: flex;
@@ -40,6 +44,7 @@
             border-bottom: 1px solid rgba(133, 79, 255, 0.1);
             position: relative;
         }
+
         .chat-widget .close-button {
             position: absolute;
             right: 16px;
@@ -57,18 +62,22 @@
             font-size: 20px;
             opacity: 0.6;
         }
+
         .chat-widget .close-button:hover {
             opacity: 1;
         }
+
         .chat-widget .brand-header img {
             width: 32px;
             height: 32px;
         }
+
         .chat-widget .brand-header span {
             font-size: 18px;
             font-weight: 500;
             color: var(--chat--color-font);
         }
+
         .chat-widget .new-conversation {
             position: absolute;
             top: 50%;
@@ -79,6 +88,7 @@
             width: 100%;
             max-width: 300px;
         }
+
         .chat-widget .welcome-text {
             font-size: 24px;
             font-weight: 600;
@@ -86,6 +96,7 @@
             margin-bottom: 24px;
             line-height: 1.3;
         }
+
         .chat-widget .new-chat-btn {
             display: flex;
             align-items: center;
@@ -104,27 +115,33 @@
             font-family: inherit;
             margin-bottom: 12px;
         }
+
         .chat-widget .new-chat-btn:hover {
             transform: scale(1.02);
         }
+
         .chat-widget .message-icon {
             width: 20px;
             height: 20px;
         }
+
         .chat-widget .response-text {
             font-size: 14px;
             color: var(--chat--color-font);
             opacity: 0.7;
             margin: 0;
         }
+
         .chat-widget .chat-interface {
             display: none;
             flex-direction: column;
             height: 100%;
         }
+
         .chat-widget .chat-interface.active {
             display: flex;
         }
+
         .chat-widget .chat-messages {
             flex: 1;
             overflow-y: auto;
@@ -133,6 +150,7 @@
             display: flex;
             flex-direction: column;
         }
+
         .chat-widget .chat-message {
             padding: 12px 16px;
             margin: 8px 0;
@@ -142,6 +160,7 @@
             font-size: 14px;
             line-height: 1.5;
         }
+
         .chat-widget .chat-message.user {
             background: linear-gradient(135deg, var(--chat--color-primary) 0%, var(--chat--color-secondary) 100%);
             color: white;
@@ -149,6 +168,7 @@
             box-shadow: 0 4px 12px rgba(133, 79, 255, 0.2);
             border: none;
         }
+
         .chat-widget .chat-message.bot {
             background: var(--chat--color-background);
             border: 1px solid rgba(133, 79, 255, 0.2);
@@ -156,6 +176,7 @@
             align-self: flex-start;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
         }
+
         .chat-widget .chat-input {
             padding: 16px;
             background: var(--chat--color-background);
@@ -163,6 +184,7 @@
             display: flex;
             gap: 8px;
         }
+
         .chat-widget .chat-input textarea {
             flex: 1;
             padding: 12px;
@@ -174,10 +196,12 @@
             font-family: inherit;
             font-size: 14px;
         }
+
         .chat-widget .chat-input textarea::placeholder {
             color: var(--chat--color-font);
             opacity: 0.6;
         }
+
         .chat-widget .chat-input button {
             background: linear-gradient(135deg, var(--chat--color-primary) 0%, var(--chat--color-secondary) 100%);
             color: white;
@@ -189,9 +213,11 @@
             font-family: inherit;
             font-weight: 500;
         }
+
         .chat-widget .chat-input button:hover {
             transform: scale(1.05);
         }
+
         .chat-widget .chat-toggle {
             position: fixed;
             bottom: 20px;
@@ -210,24 +236,29 @@
             align-items: center;
             justify-content: center;
         }
+
         .chat-widget .chat-toggle.position-left {
             right: auto;
             left: 20px;
         }
+
         .chat-widget .chat-toggle:hover {
             transform: scale(1.05);
         }
+
         .chat-widget .chat-toggle svg {
             width: 24px;
             height: 24px;
             fill: currentColor;
         }
+
         .chat-widget .chat-footer {
             padding: 8px;
             text-align: center;
             background: var(--chat--color-background);
             border-top: 1px solid rgba(133, 79, 255, 0.1);
         }
+
         .chat-widget .chat-footer a {
             color: var(--chat--color-primary);
             text-decoration: none;
@@ -236,29 +267,38 @@
             transition: opacity 0.2s;
             font-family: inherit;
         }
+
         .chat-widget .chat-footer a:hover {
             opacity: 1;
         }
     `;
-    // Carrega a fonte Geist
+
+    // Load Geist font
     const fontLink = document.createElement('link');
     fontLink.rel = 'stylesheet';
     fontLink.href = 'https://cdn.jsdelivr.net/npm/geist@1.0.0/dist/fonts/geist-sans/style.css';
     document.head.appendChild(fontLink);
-    // Injeta os estilos
+
+    // Inject styles
     const styleSheet = document.createElement('style');
     styleSheet.textContent = styles;
     document.head.appendChild(styleSheet);
-    
-    // Configuração padrão e merge com a configuração do usuário
+
+    // Default configuration
     const defaultConfig = {
-        webhook: { url: '', route: '' },
+        webhook: {
+            url: '',
+            route: ''
+        },
         branding: {
             logo: '',
             name: '',
             welcomeText: '',
             responseTimeText: '',
-            poweredBy: { text: 'Powered by ChatWidget', link: '#' }
+            poweredBy: {
+                text: 'Powered by ChatWidget',
+                link: '#'
+            }
         },
         style: {
             primaryColor: '',
@@ -267,8 +307,11 @@
             backgroundColor: '#ffffff',
             fontColor: '#333333'
         },
+        // Nova configuração para integração com Baserow
         baserow: null
     };
+
+    // Merge user config with defaults
     const config = window.ChatWidgetConfig ? 
         {
             webhook: { ...defaultConfig.webhook, ...window.ChatWidgetConfig.webhook },
@@ -276,21 +319,24 @@
             style: { ...defaultConfig.style, ...window.ChatWidgetConfig.style },
             baserow: window.ChatWidgetConfig.baserow || null
         } : defaultConfig;
-    
+
+    // Prevent multiple initializations
     if (window.ChatWidgetInitialized) return;
     window.ChatWidgetInitialized = true;
-    
+
     let currentSessionId = '';
-    let baserowRowId = null;
-    
-    // Cria o container do widget
+    let baserowRowId = null; // Variável para armazenar o ID da linha criada no Baserow
+
+    // Create widget container
     const widgetContainer = document.createElement('div');
     widgetContainer.className = 'chat-widget';
+    
+    // Set CSS variables for colors
     widgetContainer.style.setProperty('--chat-primary-color', config.style.primaryColor);
     widgetContainer.style.setProperty('--chat-secondary-color', config.style.secondaryColor);
     widgetContainer.style.setProperty('--chat-background-color', config.style.backgroundColor);
     widgetContainer.style.setProperty('--chat-font-color', config.style.fontColor);
-    
+
     const chatContainer = document.createElement('div');
     chatContainer.className = `chat-container${config.style.position === 'left' ? ' position-left' : ''}`;
     
@@ -311,7 +357,7 @@
             <p class="response-text">${config.branding.responseTimeText}</p>
         </div>
     `;
-    
+
     const chatInterfaceHTML = `
         <div class="chat-interface">
             <div class="brand-header">
@@ -331,6 +377,7 @@
     `;
     
     chatContainer.innerHTML = newConversationHTML + chatInterfaceHTML;
+    
     const toggleButton = document.createElement('button');
     toggleButton.className = `chat-toggle${config.style.position === 'left' ? ' position-left' : ''}`;
     toggleButton.innerHTML = `
@@ -341,22 +388,13 @@
     widgetContainer.appendChild(chatContainer);
     widgetContainer.appendChild(toggleButton);
     document.body.appendChild(widgetContainer);
-    
+
     const newChatBtn = chatContainer.querySelector('.new-chat-btn');
     const chatInterface = chatContainer.querySelector('.chat-interface');
     const messagesContainer = chatContainer.querySelector('.chat-messages');
     const textarea = chatContainer.querySelector('textarea');
     const sendButton = chatContainer.querySelector('button[type="submit"]');
-    
-    // Função auxiliar para exibir mensagens de erro no widget
-    function displayError(message) {
-        const errorMessageDiv = document.createElement('div');
-        errorMessageDiv.className = 'chat-message bot';
-        errorMessageDiv.textContent = message;
-        messagesContainer.appendChild(errorMessageDiv);
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
-    }
-    
+
     function generateUUID() {
         return crypto.randomUUID ? crypto.randomUUID() : 
             'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
@@ -365,123 +403,210 @@
                 return v.toString(16);
             });
     }
-    
-    // Funções de integração com Baserow
+
+    // Função para lidar com eventos de chat usando Baserow:
+    // Se action for "startConversation", cria uma nova linha (POST);
+    // Se for "sendMessage", atualiza a linha existente (PATCH).
     async function handleChatEvent(action, chatInput) {
         if (!config.baserow || !config.baserow.apiUrl || !config.baserow.token) return;
         const token = config.baserow.token;
-        const data = { sessionId: currentSessionId, action, chatImput: chatInput };
-    
+        const data = {
+            sessionId: currentSessionId,
+            action: action,
+            chatImput: chatInput
+        };
+
         if (action === 'startConversation') {
+            // Cria uma nova linha
+            const url = config.baserow.apiUrl;
             try {
-                const response = await fetch(config.baserow.apiUrl, {
+                const response = await fetch(url, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': `Token ${token}` },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Token ${token}`
+                    },
                     body: JSON.stringify(data)
                 });
                 const responseData = await response.json();
-                baserowRowId = responseData.id;
+                baserowRowId = responseData.id; // Armazena o ID da linha criada
+                return responseData;
             } catch (e) {
                 console.error('Erro ao criar a linha:', e);
-                displayError('Erro ao iniciar a conversa. Tente novamente.');
+                const errorMessageDiv = document.createElement('div');
+                errorMessageDiv.className = 'chat-message bot';
+                errorMessageDiv.textContent = "Desculpe, tivemos um problema ao iniciar a conversa. Por favor, tente novamente mais tarde.";
+                messagesContainer.appendChild(errorMessageDiv);
             }
-        } else if (action === 'sendMessage' && baserowRowId) {
-            const url = `${config.baserow.apiUrl}/${baserowRowId}/?user_field_names=true`;
+        } else if (action === 'sendMessage') {
+            // Atualiza a linha existente
+            if (!baserowRowId) {
+                console.error('Nenhuma linha criada para atualizar. Execute startConversation primeiro.');
+                const errorMessageDiv = document.createElement('div');
+                errorMessageDiv.className = 'chat-message bot';
+                errorMessageDiv.textContent = "Erro: Inicie a conversa antes de enviar mensagens.";
+                messagesContainer.appendChild(errorMessageDiv);
+                return;
+            }
+            // Monta a URL para atualizar a linha usando o ID armazenado
+            const url = config.baserow.apiUrl.replace(/\/\?user_field_names=true$/, `/${baserowRowId}/?user_field_names=true`);
             try {
-                await fetch(url, {
+                const response = await fetch(url, {
                     method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': `Token ${token}` },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Token ${token}`
+                    },
                     body: JSON.stringify(data)
                 });
+                return await response.json();
             } catch (e) {
                 console.error('Erro ao atualizar a linha:', e);
-                displayError('Erro ao enviar sua mensagem. Tente novamente.');
+                const errorMessageDiv = document.createElement('div');
+                errorMessageDiv.className = 'chat-message bot';
+                errorMessageDiv.textContent = "Desculpe, tivemos um problema ao enviar sua mensagem. Por favor, tente novamente.";
+                messagesContainer.appendChild(errorMessageDiv);
             }
-        } else {
-            console.error('Nenhuma linha para atualizar. Inicie a conversa primeiro.');
-            displayError('Erro: Inicie a conversa antes de enviar mensagens.');
         }
     }
-    
-    async function fetchBaserowResponse() {
-        if (!config.baserow || !config.baserow.apiUrl || !config.baserow.token || !baserowRowId) return;
-        const url = `${config.baserow.apiUrl}/${baserowRowId}/?user_field_names=true`;
-        try {
-            const response = await fetch(url, {
-                method: 'GET',
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Token ${config.baserow.token}` }
-            });
-            const data = await response.json();
-            return data.output;
-        } catch (e) {
-            console.error('Erro ao buscar resposta do Baserow:', e);
-            displayError('Erro ao buscar resposta. Tente novamente.');
-        }
-    }
-    
+
     async function startNewConversation() {
-        currentSessionId = generateUUID();
-        chatInterface.classList.add('active');
-        if (config.baserow) {
-            await handleChatEvent('startConversation', '');
-        }
-        setTimeout(async () => {
-            let botResponse;
-            try {
-                botResponse = await fetchBaserowResponse();
-            } catch (error) {
-                console.error('Erro ao buscar resposta:', error);
+        try {
+            currentSessionId = generateUUID();
+            
+            // Mostrar a interface de chat imediatamente, sem esperar pela resposta do webhook
+            const welcomeHeader = chatContainer.querySelector('.brand-header');
+            const welcomeConversation = chatContainer.querySelector('.new-conversation');
+            
+            if (welcomeHeader) welcomeHeader.style.display = 'none';
+            if (welcomeConversation) welcomeConversation.style.display = 'none';
+            
+            chatInterface.classList.add('active');
+            
+            // Registrar início da conversa no Baserow
+            if (config.baserow) {
+                await handleChatEvent('startConversation', '');
             }
-            if (botResponse) {
+            
+            // Se um webhook estiver configurado, envia a solicitação
+            if (config.webhook && config.webhook.url) {
+                const data = [{
+                    action: "loadPreviousSession",
+                    sessionId: currentSessionId,
+                    route: config.webhook.route,
+                    metadata: { userId: "" }
+                }];
+
+                const response = await fetch(config.webhook.url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const responseData = await response.json();
+                let output = Array.isArray(responseData) ? responseData[0].output : responseData.output;
+                if (!output) {
+                    output = "Desculpe, não conseguimos recuperar uma resposta. Tente novamente.";
+                }
                 const botMessageDiv = document.createElement('div');
                 botMessageDiv.className = 'chat-message bot';
-                botMessageDiv.textContent = botResponse;
+                botMessageDiv.textContent = output;
                 messagesContainer.appendChild(botMessageDiv);
-                messagesContainer.scrollTop = messagesContainer.scrollHeight;
             } else {
-                displayError('Nenhuma resposta recebida. Tente novamente.');
+                // Mensagem padrão se nenhum webhook for configurado
+                const botMessageDiv = document.createElement('div');
+                botMessageDiv.className = 'chat-message bot';
+                botMessageDiv.textContent = "Olá! Como posso ajudar você hoje?";
+                messagesContainer.appendChild(botMessageDiv);
             }
-        }, 1000);
+            
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        } catch (error) {
+            console.error('Error starting conversation:', error);
+            chatInterface.classList.add('active');
+            const errorMessageDiv = document.createElement('div');
+            errorMessageDiv.className = 'chat-message bot';
+            errorMessageDiv.textContent = "Desculpe, tivemos um problema ao iniciar a conversa. Por favor, tente novamente mais tarde.";
+            messagesContainer.appendChild(errorMessageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
     }
-    
+
     async function sendMessage(message) {
+        if (!currentSessionId) {
+            currentSessionId = generateUUID();
+        }
+
         const userMessageDiv = document.createElement('div');
         userMessageDiv.className = 'chat-message user';
         userMessageDiv.textContent = message;
         messagesContainer.appendChild(userMessageDiv);
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
-    
+
+        // Registrar envio da mensagem no Baserow
         if (config.baserow) {
             await handleChatEvent('sendMessage', message);
         }
-    
-        setTimeout(async () => {
-            let botResponse;
-            try {
-                botResponse = await fetchBaserowResponse();
-            } catch (error) {
-                console.error('Erro ao buscar resposta:', error);
-            }
-            if (botResponse) {
+
+        try {
+            if (config.webhook && config.webhook.url) {
+                const messageData = {
+                    action: "sendMessage",
+                    sessionId: currentSessionId,
+                    route: config.webhook.route,
+                    chatInput: message,
+                    metadata: { userId: "" }
+                };
+                
+                const response = await fetch(config.webhook.url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(messageData)
+                });
+                
+                const data = await response.json();
+                let output = Array.isArray(data) ? data[0].output : data.output;
+                if (!output) {
+                    output = "Desculpe, não recebemos uma resposta. Tente novamente.";
+                }
                 const botMessageDiv = document.createElement('div');
                 botMessageDiv.className = 'chat-message bot';
-                botMessageDiv.textContent = botResponse;
+                botMessageDiv.textContent = output;
                 messagesContainer.appendChild(botMessageDiv);
-                messagesContainer.scrollTop = messagesContainer.scrollHeight;
             } else {
-                displayError('Nenhuma resposta recebida. Tente novamente.');
+                // Resposta padrão se nenhum webhook for configurado
+                setTimeout(() => {
+                    const botMessageDiv = document.createElement('div');
+                    botMessageDiv.className = 'chat-message bot';
+                    botMessageDiv.textContent = "Recebemos sua mensagem! Um agente entrará em contato em breve.";
+                    messagesContainer.appendChild(botMessageDiv);
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                }, 500);
             }
-        }, 1000);
+        } catch (error) {
+            console.error('Error sending message:', error);
+            const errorMessageDiv = document.createElement('div');
+            errorMessageDiv.className = 'chat-message bot';
+            errorMessageDiv.textContent = "Desculpe, tivemos um problema ao enviar sua mensagem. Por favor, tente novamente.";
+            messagesContainer.appendChild(errorMessageDiv);
+        }
+        
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
-    
-    newChatBtn.addEventListener('click', () => {
-        const welcomeHeader = chatContainer.querySelector('.brand-header');
-        const welcomeConversation = chatContainer.querySelector('.new-conversation');
-        if (welcomeHeader) welcomeHeader.style.display = 'none';
-        if (welcomeConversation) welcomeConversation.style.display = 'none';
-        startNewConversation();
+
+    // Abrir chat quando o botão de toggle for clicado
+    toggleButton.addEventListener('click', () => {
+        chatContainer.classList.toggle('open');
     });
+
+    // Iniciar nova conversa quando o botão "Send us a message" for clicado
+    newChatBtn.addEventListener('click', startNewConversation);
     
+    // Enviar mensagem quando o botão de envio for clicado
     sendButton.addEventListener('click', () => {
         const message = textarea.value.trim();
         if (message) {
@@ -490,6 +615,7 @@
         }
     });
     
+    // Enviar mensagem quando Enter for pressionado (sem Shift)
     textarea.addEventListener('keypress', (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
@@ -500,15 +626,12 @@
             }
         }
     });
-    
+
+    // Fechar chat quando o botão de fechar for clicado
     const closeButtons = chatContainer.querySelectorAll('.close-button');
     closeButtons.forEach(button => {
         button.addEventListener('click', () => {
             chatContainer.classList.remove('open');
         });
-    });
-    
-    toggleButton.addEventListener('click', () => {
-        chatContainer.classList.toggle('open');
     });
 })();
