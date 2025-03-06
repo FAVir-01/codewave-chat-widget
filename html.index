@@ -1,0 +1,31 @@
+<html>
+  <!-- Widget Configuration -->
+  <script>
+    window.ChatWidgetConfig = {
+        webhook: {
+            url: '<Seu webhook>', 
+            route: 'general'
+        },
+        branding: {
+            logo: 'https://avatars.githubusercontent.com/u/57262511?v=4',
+            name: 'Rebecca', // Nome da sua empresa
+            welcomeText: 'Olá 👋, como podemos ajudar?',
+            responseTimeText: 'Normalmente respondemos imediatamente',
+        },
+        style: {
+            primaryColor: '#854fff',
+            secondaryColor: '#6b3fd4',
+            position: 'right',
+            backgroundColor: '#ffffff',
+            fontColor: '#333333'
+        },
+        // Configuração para registrar eventos na tabela do Baserow
+        baserow: {
+            apiUrl: 'https://api.baserow.io/api/database/rows/table/465434/?user_field_names=true',
+            token: 'YOUR_DATABASE_TOKEN'
+        }
+    };
+  </script>
+  <script src="https://favir-01.github.io/codewave-chat-widget/codewave-chat.js"></script>
+  <!-- Widget Script -->
+</html>
