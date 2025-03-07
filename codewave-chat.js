@@ -1,6 +1,6 @@
 // Chat Widget Script
 (function() {
-    // Create and inject styles
+    // 1. Criação e injeção dos estilos (igual ao seu código original + indicador de digitação no final)
     const styles = `
         .chat-widget {
             --chat--color-primary: var(--chat-primary-color, #854fff);
@@ -271,18 +271,60 @@
         .chat-widget .chat-footer a:hover {
             opacity: 1;
         }
+
+        /* ========== 3 PONTINHOS ANIMADOS (INDICADOR DE DIGITAÇÃO) ========== */
+        .chat-message.typing-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+        }
+        .typing-dots {
+            display: inline-flex;
+            gap: 4px;
+            margin-top: 4px;
+        }
+        .typing-dots .dot {
+            width: 8px;
+            height: 8px;
+            background-color: #ccc;
+            border-radius: 50%;
+            animation: typingIndicator 1s infinite;
+            opacity: 0.4;
+        }
+        .typing-dots .dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        .typing-dots .dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        @keyframes typingIndicator {
+            0% {
+                transform: translateY(0);
+                opacity: 0.4;
+            }
+            50% {
+                transform: translateY(-3px);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(0);
+                opacity: 0.4;
+            }
+        }
     `;
-    // Load Geist font
+    
+    // Carrega a fonte Geist
     const fontLink = document.createElement('link');
     fontLink.rel = 'stylesheet';
     fontLink.href = 'https://cdn.jsdelivr.net/npm/geist@1.0.0/dist/fonts/geist-sans/style.css';
     document.head.appendChild(fontLink);
-    // Inject styles
+
+    // Injeta estilos
     const styleSheet = document.createElement('style');
     styleSheet.textContent = styles;
     document.head.appendChild(styleSheet);
 
-    // Default configuration
+    // Configuração padrão
     const defaultConfig = {
         webhook: {
             url: '',
@@ -305,39 +347,41 @@
             backgroundColor: '#ffffff',
             fontColor: '#333333'
         },
-        // Nova configuração para integração com Baserow
         baserow: null
     };
 
-    // Merge user config with defaults
-    const config = window.ChatWidgetConfig ? 
-        {
+    // Merge user config com defaults
+    const config = window.ChatWidgetConfig 
+        ? {
             webhook: { ...defaultConfig.webhook, ...window.ChatWidgetConfig.webhook },
             branding: { ...defaultConfig.branding, ...window.ChatWidgetConfig.branding },
             style: { ...defaultConfig.style, ...window.ChatWidgetConfig.style },
             baserow: window.ChatWidgetConfig.baserow || null
-        } : defaultConfig;
+        }
+        : defaultConfig;
 
-    // Prevent multiple initializations
+    // Evita duplicar inicialização
     if (window.ChatWidgetInitialized) return;
     window.ChatWidgetInitialized = true;
 
+    // Variáveis globais
     let currentSessionId = '';
-    let baserowRowId = null; // Variável para armazenar o ID da linha criada no Baserow
+    let baserowRowId = null;
 
-    // Create widget container
+    // Cria o container do widget
     const widgetContainer = document.createElement('div');
     widgetContainer.className = 'chat-widget';
-    
-    // Set CSS variables for colors
-    widgetContainer.style.setProperty('--chat-primary-color', config.style.primaryColor);
-    widgetContainer.style.setProperty('--chat-secondary-color', config.style.secondaryColor);
-    widgetContainer.style.setProperty('--chat-background-color', config.style.backgroundColor);
-    widgetContainer.style.setProperty('--chat-font-color', config.style.fontColor);
+
+    // Corrige as variáveis CSS para corresponder ao seu design
+    widgetContainer.style.setProperty('--chat--color-primary', config.style.primaryColor || '#854fff');
+    widgetContainer.style.setProperty('--chat--color-secondary', config.style.secondaryColor || '#6b3fd4');
+    widgetContainer.style.setProperty('--chat--color-background', config.style.backgroundColor || '#ffffff');
+    widgetContainer.style.setProperty('--chat--color-font', config.style.fontColor || '#333333');
 
     const chatContainer = document.createElement('div');
     chatContainer.className = `chat-container${config.style.position === 'left' ? ' position-left' : ''}`;
-    
+
+    // HTML do “Send us a message” + interface
     const newConversationHTML = `
         <div class="brand-header">
             <img src="${config.branding.logo}" alt="${config.branding.name}">
@@ -373,26 +417,53 @@
             </div>
         </div>
     `;
-    
+
     chatContainer.innerHTML = newConversationHTML + chatInterfaceHTML;
-    
+
+    // Botão flutuante (circulo)
     const toggleButton = document.createElement('button');
     toggleButton.className = `chat-toggle${config.style.position === 'left' ? ' position-left' : ''}`;
     toggleButton.innerHTML = `
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
             <path d="M12 2C6.477 2 2 6.477 2 12c0 1.821.487 3.53 1.338 5L2.5 21.5l4.5-.838A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm0 18c-1.476 0-2.886-.313-4.156-.878l-3.156.586.586-3.156A7.962 7.962 0 014 12c0-4.411 3.589-8 8-8s8 3.589 8 8-3.589 8-8 8z"/>
         </svg>`;
-    
+
+    // Anexa ao documento
     widgetContainer.appendChild(chatContainer);
     widgetContainer.appendChild(toggleButton);
     document.body.appendChild(widgetContainer);
 
+    // Referências
     const newChatBtn = chatContainer.querySelector('.new-chat-btn');
     const chatInterface = chatContainer.querySelector('.chat-interface');
     const messagesContainer = chatContainer.querySelector('.chat-messages');
     const textarea = chatContainer.querySelector('textarea');
     const sendButton = chatContainer.querySelector('button[type="submit"]');
 
+    // Função para exibir indicador de digitação
+    function showTypingIndicator() {
+        const typingIndicator = document.createElement('div');
+        typingIndicator.className = 'chat-message bot typing-indicator';
+        typingIndicator.innerHTML = `
+            <div class="typing-dots">
+                <span class="dot"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+            </div>
+        `;
+        messagesContainer.appendChild(typingIndicator);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        return typingIndicator;
+    }
+
+    // Função para remover indicador de digitação
+    function hideTypingIndicator(indicator) {
+        if (indicator && indicator.parentNode) {
+            indicator.parentNode.removeChild(indicator);
+        }
+    }
+
+    // Gera UUID
     function generateUUID() {
         return crypto.randomUUID ? crypto.randomUUID() : 
             'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
@@ -402,10 +473,9 @@
             });
     }
 
-    // Função que busca a resposta (campo "output") do Baserow via GET
+    // Busca o campo output no Baserow
     async function fetchBaserowResponse() {
         if (!config.baserow || !config.baserow.apiUrl || !config.baserow.token || !baserowRowId) return null;
-        // Monta a URL usando o ID da linha
         const url = config.baserow.apiUrl.replace(/\/\?user_field_names=true$/, `/${baserowRowId}/?user_field_names=true`);
         try {
             const response = await fetch(url, {
@@ -423,22 +493,29 @@
         }
     }
 
-    // Função de polling: aguarda até que o output seja atualizado (diferente do valor anterior)
+    // Polling: aguarda o output mudar, exibindo pontinhos
     async function pollForOutputChange(previousOutput, timeout = 10000, interval = 1000) {
         const start = Date.now();
-        while (Date.now() - start < timeout) {
-            const newOutput = await fetchBaserowResponse();
-            if (newOutput && newOutput !== previousOutput) {
-                return newOutput;
+        // Mostra indicador
+        const typingIndicator = showTypingIndicator();
+        let finalOutput = null;
+        try {
+            while (Date.now() - start < timeout) {
+                const newOutput = await fetchBaserowResponse();
+                if (newOutput && newOutput !== previousOutput) {
+                    finalOutput = newOutput;
+                    break;
+                }
+                await new Promise(resolve => setTimeout(resolve, interval));
             }
-            await new Promise(resolve => setTimeout(resolve, interval));
+        } finally {
+            // Remove indicador independente de sucesso ou timeout
+            hideTypingIndicator(typingIndicator);
         }
-        return null;
+        return finalOutput;
     }
 
-    // Função para lidar com eventos de chat usando Baserow:
-    // Se action for "startConversation", cria uma nova linha (POST);
-    // Se for "sendMessage", atualiza a linha existente (PATCH).
+    // handleChatEvent: cria (POST) ou atualiza (PATCH) a linha no Baserow
     async function handleChatEvent(action, chatInput) {
         if (!config.baserow || !config.baserow.apiUrl || !config.baserow.token) return;
         const token = config.baserow.token;
@@ -449,9 +526,8 @@
         };
 
         if (action === 'startConversation') {
-            const url = config.baserow.apiUrl;
             try {
-                const response = await fetch(url, {
+                const response = await fetch(config.baserow.apiUrl, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -499,26 +575,32 @@
         }
     }
 
+    // Inicia nova conversa
     async function startNewConversation() {
         try {
             currentSessionId = generateUUID();
-            
-            // Oculta os elementos de boas-vindas
+
+            // Oculta a tela de boas-vindas
             const welcomeHeader = chatContainer.querySelector('.brand-header');
             const welcomeConversation = chatContainer.querySelector('.new-conversation');
             if (welcomeHeader) welcomeHeader.style.display = 'none';
             if (welcomeConversation) welcomeConversation.style.display = 'none';
-            
+
+            // Mostra interface do chat
             chatInterface.classList.add('active');
-            
+
+            // Cria a linha no Baserow
             if (config.baserow) {
                 await handleChatEvent('startConversation', '');
             }
-            
-            // Obtém o output atual (antes de atualização)
+
+            // Captura valor antigo
             const previousOutput = await fetchBaserowResponse();
-            // Aguarda até que o output seja atualizado (polling)
+
+            // Polling p/ ver se o output muda
             const updatedOutput = await pollForOutputChange(previousOutput, 10000, 1000);
+
+            // Exibe a resposta final
             const botMessageDiv = document.createElement('div');
             botMessageDiv.className = 'chat-message bot';
             botMessageDiv.textContent = updatedOutput || "Desculpe, não recebemos uma resposta. Tente novamente.";
@@ -529,32 +611,37 @@
             chatInterface.classList.add('active');
             const errorMessageDiv = document.createElement('div');
             errorMessageDiv.className = 'chat-message bot';
-            errorMessageDiv.textContent = "Desculpe, tivemos um problema ao iniciar a conversa. Tente novamente.";
+            errorMessageDiv.textContent = "Desculpe, tivemos um problema ao iniciar a conversa. Por favor, tente novamente mais tarde.";
             messagesContainer.appendChild(errorMessageDiv);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
     }
 
+    // Envia mensagem
     async function sendMessage(message) {
         if (!currentSessionId) {
             currentSessionId = generateUUID();
         }
 
+        // Mostra msg do usuário
         const userMessageDiv = document.createElement('div');
         userMessageDiv.className = 'chat-message user';
         userMessageDiv.textContent = message;
         messagesContainer.appendChild(userMessageDiv);
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
-        // Obtém o output atual antes da atualização
+        // Valor antigo
         const previousOutput = await fetchBaserowResponse();
-        
+
+        // Atualiza a linha no Baserow
         if (config.baserow) {
             await handleChatEvent('sendMessage', message);
         }
 
-        // Aguarda até que o output seja atualizado
+        // Polling p/ ver se o output muda
         const updatedOutput = await pollForOutputChange(previousOutput, 10000, 1000);
+
+        // Exibe a resposta final
         const botMessageDiv = document.createElement('div');
         botMessageDiv.className = 'chat-message bot';
         botMessageDiv.textContent = updatedOutput || "Desculpe, não recebemos uma resposta. Tente novamente.";
@@ -562,15 +649,15 @@
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
 
-    // Abrir chat quando o botão de toggle for clicado
+    // Botão flutuante (abre/fecha chat)
     toggleButton.addEventListener('click', () => {
         chatContainer.classList.toggle('open');
     });
 
-    // Iniciar nova conversa quando o botão "Send us a message" for clicado
+    // “Send us a message”
     newChatBtn.addEventListener('click', startNewConversation);
-    
-    // Enviar mensagem quando o botão de envio for clicado
+
+    // Botão “Send”
     sendButton.addEventListener('click', () => {
         const message = textarea.value.trim();
         if (message) {
@@ -578,8 +665,8 @@
             textarea.value = '';
         }
     });
-    
-    // Enviar mensagem quando Enter for pressionado (sem Shift)
+
+    // Enter envia mensagem
     textarea.addEventListener('keypress', (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
@@ -591,7 +678,7 @@
         }
     });
 
-    // Fechar chat quando o botão de fechar for clicado
+    // Fecha chat no “×”
     const closeButtons = chatContainer.querySelectorAll('.close-button');
     closeButtons.forEach(button => {
         button.addEventListener('click', () => {
