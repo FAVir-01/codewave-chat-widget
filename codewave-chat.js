@@ -272,13 +272,11 @@
             opacity: 1;
         }
     `;
-
     // Load Geist font
     const fontLink = document.createElement('link');
     fontLink.rel = 'stylesheet';
     fontLink.href = 'https://cdn.jsdelivr.net/npm/geist@1.0.0/dist/fonts/geist-sans/style.css';
     document.head.appendChild(fontLink);
-
     // Inject styles
     const styleSheet = document.createElement('style');
     styleSheet.textContent = styles;
@@ -404,10 +402,10 @@
             });
     }
 
-    // Função para buscar a resposta (campo "output") do Baserow via GET
+    // Função que busca a resposta (campo "output") do Baserow via GET
     async function fetchBaserowResponse() {
         if (!config.baserow || !config.baserow.apiUrl || !config.baserow.token || !baserowRowId) return null;
-        // Constrói a URL com o ID da linha criado
+        // Monta a URL usando o ID da linha
         const url = config.baserow.apiUrl.replace(/\/\?user_field_names=true$/, `/${baserowRowId}/?user_field_names=true`);
         try {
             const response = await fetch(url, {
@@ -425,6 +423,19 @@
         }
     }
 
+    // Função de polling: aguarda até que o output seja atualizado (diferente do valor anterior)
+    async function pollForOutputChange(previousOutput, timeout = 10000, interval = 1000) {
+        const start = Date.now();
+        while (Date.now() - start < timeout) {
+            const newOutput = await fetchBaserowResponse();
+            if (newOutput && newOutput !== previousOutput) {
+                return newOutput;
+            }
+            await new Promise(resolve => setTimeout(resolve, interval));
+        }
+        return null;
+    }
+
     // Função para lidar com eventos de chat usando Baserow:
     // Se action for "startConversation", cria uma nova linha (POST);
     // Se for "sendMessage", atualiza a linha existente (PATCH).
@@ -438,7 +449,6 @@
         };
 
         if (action === 'startConversation') {
-            // Cria uma nova linha
             const url = config.baserow.apiUrl;
             try {
                 const response = await fetch(url, {
@@ -450,7 +460,7 @@
                     body: JSON.stringify(data)
                 });
                 const responseData = await response.json();
-                baserowRowId = responseData.id; // Armazena o ID da linha criada
+                baserowRowId = responseData.id;
                 return responseData;
             } catch (e) {
                 console.error('Erro ao criar a linha:', e);
@@ -460,7 +470,6 @@
                 messagesContainer.appendChild(errorMessageDiv);
             }
         } else if (action === 'sendMessage') {
-            // Atualiza a linha existente
             if (!baserowRowId) {
                 console.error('Nenhuma linha criada para atualizar. Execute startConversation primeiro.');
                 const errorMessageDiv = document.createElement('div');
@@ -469,7 +478,6 @@
                 messagesContainer.appendChild(errorMessageDiv);
                 return;
             }
-            // Monta a URL para atualizar a linha usando o ID armazenado
             const url = config.baserow.apiUrl.replace(/\/\?user_field_names=true$/, `/${baserowRowId}/?user_field_names=true`);
             try {
                 const response = await fetch(url, {
@@ -503,20 +511,19 @@
             
             chatInterface.classList.add('active');
             
-            // Registrar início da conversa no Baserow
             if (config.baserow) {
                 await handleChatEvent('startConversation', '');
             }
             
-            // Após 1 segundo, busca a resposta do campo "output" no Baserow e exibe
-            setTimeout(async () => {
-                const botResponse = await fetchBaserowResponse();
-                const botMessageDiv = document.createElement('div');
-                botMessageDiv.className = 'chat-message bot';
-                botMessageDiv.textContent = botResponse || "Desculpe, não recebemos uma resposta. Tente novamente.";
-                messagesContainer.appendChild(botMessageDiv);
-                messagesContainer.scrollTop = messagesContainer.scrollHeight;
-            }, 1000);
+            // Obtém o output atual (antes de atualização)
+            const previousOutput = await fetchBaserowResponse();
+            // Aguarda até que o output seja atualizado (polling)
+            const updatedOutput = await pollForOutputChange(previousOutput, 10000, 1000);
+            const botMessageDiv = document.createElement('div');
+            botMessageDiv.className = 'chat-message bot';
+            botMessageDiv.textContent = updatedOutput || "Desculpe, não recebemos uma resposta. Tente novamente.";
+            messagesContainer.appendChild(botMessageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
         } catch (error) {
             console.error('Error starting conversation:', error);
             chatInterface.classList.add('active');
@@ -539,20 +546,20 @@
         messagesContainer.appendChild(userMessageDiv);
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
-        // Registrar envio da mensagem no Baserow
+        // Obtém o output atual antes da atualização
+        const previousOutput = await fetchBaserowResponse();
+        
         if (config.baserow) {
             await handleChatEvent('sendMessage', message);
         }
 
-        // Após 1 segundo, busca a resposta atualizada do Baserow e exibe no chat
-        setTimeout(async () => {
-            const botResponse = await fetchBaserowResponse();
-            const botMessageDiv = document.createElement('div');
-            botMessageDiv.className = 'chat-message bot';
-            botMessageDiv.textContent = botResponse || "Desculpe, não recebemos uma resposta. Tente novamente.";
-            messagesContainer.appendChild(botMessageDiv);
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        }, 1000);
+        // Aguarda até que o output seja atualizado
+        const updatedOutput = await pollForOutputChange(previousOutput, 10000, 1000);
+        const botMessageDiv = document.createElement('div');
+        botMessageDiv.className = 'chat-message bot';
+        botMessageDiv.textContent = updatedOutput || "Desculpe, não recebemos uma resposta. Tente novamente.";
+        messagesContainer.appendChild(botMessageDiv);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
 
     // Abrir chat quando o botão de toggle for clicado
