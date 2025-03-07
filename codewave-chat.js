@@ -336,7 +336,7 @@
             welcomeText: '',
             responseTimeText: '',
             poweredBy: {
-                text: 'Powered by ChatWidget',
+                text: 'Powered by CodeWave.ia',
                 link: '#'
             }
         },
