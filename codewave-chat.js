@@ -494,7 +494,7 @@
     }
 
     // Polling: aguarda o output mudar, exibindo pontinhos
-    async function pollForOutputChange(previousOutput, timeout = 10000, interval = 1000) {
+    async function pollForOutputChange(previousOutput, timeout = 20000, interval = 1000) {
         const start = Date.now();
         // Mostra indicador
         const typingIndicator = showTypingIndicator();
