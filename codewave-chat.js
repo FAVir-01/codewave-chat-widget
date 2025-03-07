@@ -522,7 +522,7 @@
         const data = {
             sessionId: currentSessionId,
             action: action,
-            chatImput: chatInput
+            chatInput: chatInput
         };
 
         if (action === 'startConversation') {
